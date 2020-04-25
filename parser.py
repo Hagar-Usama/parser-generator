@@ -27,27 +27,28 @@ def print_green(msg):
 
 
 def get_current_directory(): 
-    #dirpath = os.getcwd()
-    #print("current directory is : " + dirpath)
-    #foldername = os.path.basename(dirpath)
-    #print("Directory name is : " + foldername)
-    #scriptpath = os.path.realpath(__file__)
-    #scriptpath = os.path.abspath(__file__)
     current_path = os.path.dirname(os.path.abspath(__file__))
     return current_path
     print("Script path is : " + scriptpath)
 
 
 def split_rules(rules_str):
+    '''
+    returns a list of rules
+    '''
     rules_str = rules_str.split('#')
     rules_list = []
     for rule in rules_str:
         if rule != '':
             rules_list.append(rule)
-            #print('*.*'+ rule + '*.*')
     return rules_list
 
+
 def trim_rules(rules_list):
+    '''
+    trims the list of rules
+    
+    '''
     trim_list = []
     for rule in rules_list:
         trim_list.append(rule.strip())
@@ -55,8 +56,31 @@ def trim_rules(rules_list):
     return trim_list
 
 def map_rule(rule_statment):
+    
     rule_dict = {}
+    part1 = partition_rule(rule_statment)
+    part2 = divide_RHS(part1[1])
+    rule_dict[part1[0]] = part2
 
+    return rule_dict
+
+
+def partition_rule(rule_statment):
+    parts = rule_statment.split('=', 1)
+    parts_temp = []
+    for i in parts:
+        parts_temp.append(i.strip()) 
+
+    return parts_temp
+    
+def divide_RHS(rule_statment):
+    parts = rule_statment.split('|')
+    parts_temp = []
+    for i in parts:
+        parts_temp.append(i.strip())
+        #print_green(i)
+
+    return parts_temp
 
 
 
@@ -74,6 +98,7 @@ def read_file(filepath):
 
 
 def main():
+    grammar_dict = {}
     print("Hello from the parser 🤗")
     cfg = get_current_directory()
     print_yellow(cfg)
@@ -81,16 +106,23 @@ def main():
     print_blue(cfg)
     file_content = read_file(cfg)
     rules_list = split_rules(file_content)
-    
-    """ print_green(rules_list[0])
-    rules_list[0].strip()
-    print_red(rules_list[0])
- """
     trim_list = trim_rules(rules_list)
+    for i in trim_list:
+        m = map_rule(i)
+        grammar_dict.update(m)
+        print_yellow(m)
+    
+    #for i in grammar_dict:
+    #    print_blue(i.value()
+    
+    
+"""     trim_list = trim_rules(rules_list)
     for rule in trim_list:
         print_red(rule)
     
-    
+    g = partition_rule(trim_list[1])
+    divide_RHS(g[1])
+ """
 
 
 
