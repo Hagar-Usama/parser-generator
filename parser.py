@@ -1,4 +1,13 @@
 import os
+import sys
+
+
+my_path = current_path = os.path.dirname(os.path.abspath(__file__))
+my_path = my_path[:-16]
+sys.path.insert(1, my_path)
+import left_recursion
+import left_factoring
+
 
 # https://bluesock.org/~willkg/dev/ansi.html
 ANSI_RESET = "\u001B[0m"
@@ -175,6 +184,9 @@ def assign_unique_value(statement_set):
             
             if unique_id == 91:
                 unique_id = 97
+            elif unique_id == 120518:
+                #reserved for epsilon
+                unique_id +=1
         
 
             G_identifiers[i] = chr(unique_id)
@@ -279,10 +291,32 @@ def main():
 
     print(ord('🤗'))
     print(chr(129303))
+    print(grammar_dict_sym)
+
+    print("*.*.*"*15)
+    # eliminating left recursion
+    e_grammar = left_recursion.eliminate_lr(grammar_dict_sym)
+    for i in e_grammar:
+        print(f'{i}->{e_grammar[i]}')
+
+    # eliminating left factoring
+    el_grammar = left_factoring.eliminate_lf(e_grammar)
+
+    for i in e_grammar:
+        print_yellow(f'{i}->{el_grammar[i]}')
+    
+    i = 129300
+    for j in range(1,70):
+        print(chr(i))
+        i += 1
+
+    print_blue(ord('𝛆'))
     xx = "ggg"
+    print_purple(ord('🤿'))
+    print_blue(ord('🤻'))
     """ for i in range(100,200):
         xx = xx.replace(xx,chr(i))
-        print_red(xx)
+        print_red(xx)🤻🤿
  """
 
 if __name__ == '__main__':
