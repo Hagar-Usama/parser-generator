@@ -6,12 +6,21 @@ ANSI_RED = "\u001B[31m"
 ANSI_GREEN = "\u001B[32m"
 ANSI_YELLOW = "\u001B[33m"
 ANSI_BLUE = "\u001B[34m"
+ANSI_PURPLE = "\u001B[35m"
+""" ANSI_Light_Blue       "\e[1;34m"
+ANSI_Light_Green      "\e[1;32m"
+ANSI_Light_Cyan       "\e[1;36m"
+ANSI_Light_Red        "\e[1;31m"
+ANSI_Light_Purple     "\e[1;35m" """
 
-
+unique_id = 65
+G_identifiers = {}
 
 def print_yellow(msg):
     print(f"{ANSI_YELLOW}{msg}{ANSI_RESET}")
 
+def print_purple(msg):
+    print(f"{ANSI_PURPLE}{msg}{ANSI_RESET}")
 
 def print_blue(msg):
     print(f"{ANSI_BLUE}{msg}{ANSI_RESET}")
@@ -56,6 +65,9 @@ def trim_rules(rules_list):
     return trim_list
 
 def map_rule(rule_statment):
+    '''
+    converts rule into map LHS & RHS
+    '''
     
     rule_dict = {}
     part1 = partition_rule(rule_statment)
@@ -66,6 +78,9 @@ def map_rule(rule_statment):
 
 
 def partition_rule(rule_statment):
+    '''
+    partition rule LHS and RHS
+    '''
     parts = rule_statment.split('=', 1)
     parts_temp = []
     for i in parts:
@@ -74,6 +89,9 @@ def partition_rule(rule_statment):
     return parts_temp
     
 def divide_RHS(rule_statment):
+    '''
+    divides the RHS if contains more than one option
+    '''
     parts = rule_statment.split('|')
     parts_temp = []
     for i in parts:
@@ -82,6 +100,61 @@ def divide_RHS(rule_statment):
 
     return parts_temp
 
+def  simplify_rule(LHS, RHS):
+    ''' 
+    replaces identifiers with one char 
+    for simplicity 
+
+    updates the identifier set
+
+    '''
+    unique_char = 65
+    set_all = {}
+    RHS_list = []
+    RHS_str = ''
+
+    for i in RHS: 
+        RHS_str += i
+        RHS_str += " "
+
+    entire_str = str(LHS) + " " + RHS_str   
+        
+    #print_purple(RHS_str)
+    entire_str = entire_str.strip()
+    print_yellow(entire_str)
+
+    statement_list = entire_str.split(" ")
+    #print_green(statement_list)
+    statement_set = set(statement_list)
+    print_blue(statement_set)
+
+    return statement_set
+
+  
+
+def assign_unique_value(statement_set):
+    '''
+    assign unique values for the identifier
+    for simplicty in code
+    
+    '''
+    global unique_id
+    for i in statement_set:
+        if i not in G_identifiers:
+            
+            if unique_id == 91:
+                unique_id = 97
+        
+
+            G_identifiers[i] = chr(unique_id)
+            unique_id += 1
+
+            
+
+def print_g_id():
+    for i in G_identifiers:
+        print_green(f'{i} --> {G_identifiers[i]}')
+    
 
 
 def read_file(filepath):
@@ -112,10 +185,16 @@ def main():
         grammar_dict.update(m)
         print_yellow(m)
     
-    #for i in grammar_dict:
-    #    print_blue(i.value()
+    for i in grammar_dict:
+        set_s = simplify_rule(i,grammar_dict[i])
+        assign_unique_value(set_s)
     
     
+    print_g_id()
+    #simplify_rule(m[0], )
+    xx = "ggg"
+    xx = xx.replace(xx,chr(65))
+    print_red(xx)
 """     trim_list = trim_rules(rules_list)
     for rule in trim_list:
         print_red(rule)
