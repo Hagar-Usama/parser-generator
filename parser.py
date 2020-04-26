@@ -13,8 +13,13 @@ ANSI_Light_Cyan       "\e[1;36m"
 ANSI_Light_Red        "\e[1;31m"
 ANSI_Light_Purple     "\e[1;35m" """
 
-unique_id = 65
+# it shall be 65 
+unique_id = 129300
 G_identifiers = {}
+grammar_dict = {}
+grammar_dict_sym = {}
+
+
 
 def print_yellow(msg):
     print(f"{ANSI_YELLOW}{msg}{ANSI_RESET}")
@@ -39,6 +44,28 @@ def get_current_directory():
     current_path = os.path.dirname(os.path.abspath(__file__))
     return current_path
     print("Script path is : " + scriptpath)
+
+def read_file(filepath):
+    # Open a file: file
+    file = open(filepath,mode='r')
+ 
+    # read all lines at once
+    all_of_it = file.read()
+ 
+    # close the file
+    file.close()
+
+    return all_of_it
+
+def write_in_file(filepath , content , mod='w'):
+    # Open a file: file
+    file = open(filepath,mode=mod)
+ 
+    # read all lines at once
+    all_of_it = file.write(content)
+ 
+    # close the file
+    file.close()
 
 
 def split_rules(rules_str):
@@ -121,12 +148,12 @@ def  simplify_rule(LHS, RHS):
         
     #print_purple(RHS_str)
     entire_str = entire_str.strip()
-    print_yellow(entire_str)
+    #print_yellow(entire_str)
 
     statement_list = entire_str.split(" ")
     #print_green(statement_list)
     statement_set = set(statement_list)
-    print_blue(statement_set)
+    #print_blue(statement_set)
 
     return statement_set
 
@@ -139,8 +166,12 @@ def assign_unique_value(statement_set):
     
     '''
     global unique_id
+
+    keys = G_identifiers.keys()
+    keys_list = sort_keys(keys)
+
     for i in statement_set:
-        if i not in G_identifiers:
+        if i not in keys:
             
             if unique_id == 91:
                 unique_id = 97
@@ -149,29 +180,75 @@ def assign_unique_value(statement_set):
             G_identifiers[i] = chr(unique_id)
             unique_id += 1
 
-            
+
+def subs_grammar():
+
+    new_dict = {}
+    for i in grammar_dict:
+        RHS_list = subs_list(grammar_dict[i])
+        
+        new_dict[G_identifiers[i]] = RHS_list
+
+    #print_dictionary(new_dict)
+    
+    return new_dict
+
+         
+def subs_list(statement_list):
+    new_list = []
+    for i in statement_list:
+        if  i in G_identifiers:
+            #print_blue("found")
+            new_list.append(G_identifiers[i])
+        else:
+            #print_red("not found")
+            new_list.append(subs_loop(i))
+           # print_yellow(i)
+     
+    return new_list               
+
+def sort_keys(keys):
+    key_list = []
+    # sort keys by length to avoid error
+    for k in sorted(keys, key=lambda k: len(k), reverse=True):
+        key_list.append(k)
+    return key_list
+
+
+def subs_loop(statement_list):
+    
+    keys = G_identifiers.keys()
+    key_list = sort_keys(keys)
+    
+    statement_str = statement_list
+    
+    for i in key_list:
+        statement_str = statement_str.replace(i, G_identifiers[i])
+    
+    return statement_str
+    
+def print_dictionary(dict_map):
+    
+    for i in dict_map:
+        print_blue(f'{i} ⟶ {dict_map[i]}')
+        
 
 def print_g_id():
+    path = get_current_directory()
+    path+='/identifiers.txt'
+    write_in_file(path,"", 'w+')
+        
     for i in G_identifiers:
-        print_green(f'{i} --> {G_identifiers[i]}')
+        print_green(f'{i} ⟶  {G_identifiers[i]}\n')
+        write_in_file(path,f'{i} ⟶ {G_identifiers[i]}\n', 'a+')
+
     
 
 
-def read_file(filepath):
-    # Open a file: file
-    file = open(filepath,mode='r')
- 
-    # read all lines at once
-    all_of_it = file.read()
- 
-    # close the file
-    file.close()
-
-    return all_of_it
 
 
 def main():
-    grammar_dict = {}
+    
     print("Hello from the parser 🤗")
     cfg = get_current_directory()
     print_yellow(cfg)
@@ -180,10 +257,11 @@ def main():
     file_content = read_file(cfg)
     rules_list = split_rules(file_content)
     trim_list = trim_rules(rules_list)
+
     for i in trim_list:
         m = map_rule(i)
         grammar_dict.update(m)
-        print_yellow(m)
+        #print_yellow(m)
     
     for i in grammar_dict:
         set_s = simplify_rule(i,grammar_dict[i])
@@ -191,19 +269,21 @@ def main():
     
     
     print_g_id()
-    #simplify_rule(m[0], )
-    xx = "ggg"
-    xx = xx.replace(xx,chr(65))
-    print_red(xx)
-"""     trim_list = trim_rules(rules_list)
-    for rule in trim_list:
-        print_red(rule)
+    # get dictionary in symbols (one symbol for each identifier)
+    grammar_dict_sym =  subs_grammar()
+    print("-0-0-"*20)
+
+    print_dictionary(grammar_dict_sym)
     
-    g = partition_rule(trim_list[1])
-    divide_RHS(g[1])
+    #simplify_rule(m[0], )
+
+    print(ord('🤗'))
+    print(chr(129303))
+    xx = "ggg"
+    """ for i in range(100,200):
+        xx = xx.replace(xx,chr(i))
+        print_red(xx)
  """
-
-
 
 if __name__ == '__main__':
     main()
