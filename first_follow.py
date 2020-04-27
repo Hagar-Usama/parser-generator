@@ -111,6 +111,28 @@ def get_follow(grammar, non_terminal, first_set, start_symbol):
     for production in productions:
         find_first()
 
+
+def parse_production(production_list):
+    new_production_list = {}
+    new_list_out = []
+    temp = []
+    for i in production_list:
+        #print(production_list[i])
+        new_list = []
+        for j in production_list[i]:
+            #print(j)
+            
+            if not j:
+                #print("epsilon")
+                temp = ['𝛆']
+            else:
+                temp = j
+            new_list.append(temp)
+        new_production_list[i] = new_list    
+        #new_list_out.append(new_list)
+    #print(new_production_list)
+    return new_production_list
+    
 def find_first(grammar, non_terminal_production, non_terminal_list):
     '''
     
@@ -122,38 +144,40 @@ def find_first(grammar, non_terminal_production, non_terminal_list):
     
     #print(f'terminal production = {terminal_production}')
     for i in non_terminal_production:
-        #print(f'terminal production part: {terminal_production[i]}')
+        print(f'non-terminal production part: {non_terminal_production[i]}')
         if len(non_terminal_production[i]) == 0:
             print("just get follow")
             break
 
         #print("enteur find")
+        # going to each list for a 
         for j in non_terminal_production[i]:
             count += 1
             print(f'j is : {j}')
 
-            # first of non-terminal = get_first
-            print(len(non_terminal_production[i]))
-            if is_non_terminal(j, non_terminal_list):
-                print(f"{j} is non-terminal")
+            for k in j:
+                # first of non-terminal = get_first
+                print(len(non_terminal_production[i]))
+                if is_non_terminal(k, non_terminal_list):
+                    print(f"{k} is non-terminal")
 
-                first_ii = get_first(grammar, j, non_terminal_list)
-                print(f'first : {first_ii}')
-                first_i.update(first_ii)
-                if '𝛆' not in first_ii:
-                    print("epsilon not found!!")
-                    # if last of the list of firsts  &&  is a non-terminal
-                    # add follow of j
-                    break
-                
-                # if we are in the last element and this element has 𝛆
-                # then get follow of j 
-                if count == len(non_terminal_production[i]):
-                    print(f"followee = {i}")
-                    follow_of_follow.add(i)
+                    first_ii = get_first(grammar, k, non_terminal_list)
+                    print(f'first : {first_ii}')
+                    first_i.update(first_ii)
+                    if '𝛆' not in first_ii:
+                        print("epsilon not found!!")
+                        # if last of the list of firsts  &&  is a non-terminal
+                        # add follow of j
+                        break
+                    
+                    # if we are in the last element and this element has 𝛆
+                    # then get follow of j 
+                    if count == len(non_terminal_production[i]):
+                        print(f"followee = {i}")
+                        follow_of_follow.add(i)
 
-            else:
-                first_i.add(j)
+                else:
+                    first_i.add(j)
     first_i.remove('𝛆')
     print(f'i in find first = {count}')
     return first_i
@@ -196,7 +220,8 @@ def get_firsts(grammar , non_terminal_list):
 
 
 def main():
-    print("ho")
+   print("ho ho ho")
+
 
 if __name__ == '__main__':
     main()
