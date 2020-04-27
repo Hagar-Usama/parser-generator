@@ -20,4 +20,5 @@
 * [ ] get follow
 * [ ] build parsing table
 * [ ] walk through the parsing table
+* [ ] build a parsing tree
 * [ ] report
