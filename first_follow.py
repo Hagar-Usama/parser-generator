@@ -11,7 +11,7 @@ gram = {
 }
 
 gram2 = {
-    'S': [['A','B','C','D'], ['C']],
+    'S': [['A','B','C','D']],
     'A': [['a'], ['𝛆']],
     'B': [['C','D'], ['b']],
     'C': [['c'],['𝛆']],
@@ -162,17 +162,25 @@ def find_first(grammar, non_terminal_production, non_terminal_list):
 
 def get_rhs(grammar, non_terminal):
     rhs_dict = {}
-
+    first = []
+    second = []
+    # for each rule
     for i in grammar:
         #print(grammar[i])
+        # for each list in a rule
+        first = []
         for j in grammar[i]:
-            #print(j)
+            #print(f'j is: {j}')
             if non_terminal in j:
-                print("guard")
+                #print("guard")
                 indx = j.index(non_terminal)
-                print(indx)
-                print(f"{i} --> {j[indx+1:]} ")
-                rhs_dict[i] = j[indx+1:]
+                #print(indx)
+                #print(f"{i} --> *{j[indx+1:]}* ")
+                if j[indx+1:] not in first:
+                    first.append(j[indx+1:])
+        if len(first) != 0:
+            rhs_dict[i] = first
+        #first.clear()
     return rhs_dict
         
 def get_firsts(grammar , non_terminal_list):
@@ -187,56 +195,8 @@ def get_firsts(grammar , non_terminal_list):
     return firsts
 
 
-""" 
-first_set = get_firsts(gram2, non_terminal_list2)
-first_set = get_firsts(gram, non_terminal_list)
-first_set = get_firsts(pr1, termial_pr1)
-first_set = get_firsts(pr3, termial_pr3)
+def main():
+    print("ho")
 
-
-
-#first_a = get_first(gram2, 'S',non_terminal_list2)
-print(first_set)
- """
-
-#follow_1 = get_follow(gram2, 'A', non_terminal_list2, 'S')
-productions = get_rhs(gram2, 'C')
-# productions.update(gram2)
-# productions.update(d)
-print("*.*"*20)
-#d = {'C' : []}
-#productions.update(d)
-print(productions)
-print("*.*"*20)
-
-
-
-gram_ex = {}
-
-print(productions)
-firsts_A = find_first(gram2, productions,non_terminal_list2)
-print(firsts_A)
-
-
-
-""" 
-my_first = get_first(gram,'A', non_terminal_list)
-print(my_first)
-my_first = get_first(gram,'B', non_terminal_list)
-print(my_first)
-my_first = get_first(gram,'X', non_terminal_list)
-print(my_first)
- """
-
-
-
-""" for i in gram:
-    print(i, gram[i]) """
-""" 
-if '𝛆' == '𝛆':
-    print("equal")
-if "ê" == "ê":
-    print("equal accent ")
-if '🤕' == '🤕':
-    print("equal emoji")
- """
+if __name__ == '__main__':
+    main()
