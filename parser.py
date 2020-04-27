@@ -8,6 +8,7 @@ sys.path.insert(1, my_path)
 import left_recursion
 import left_factoring
 
+# accent characters is special case, DO NOT use them
 
 # https://bluesock.org/~willkg/dev/ansi.html
 ANSI_RESET = "\u001B[0m"
@@ -305,6 +306,10 @@ def main():
     for i in e_grammar:
         print_yellow(f'{i}->{el_grammar[i]}')
     
+    for i in e_grammar:
+        print([''.join(x) for x in e_grammar[i]])
+    
+    """ 
     i = 129300
     for j in range(1,70):
         print(chr(i))
@@ -314,6 +319,7 @@ def main():
     xx = "ggg"
     print_purple(ord('🤿'))
     print_blue(ord('🤻'))
+     """
     """ for i in range(100,200):
         xx = xx.replace(xx,chr(i))
         print_red(xx)🤻🤿
