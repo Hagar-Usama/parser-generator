@@ -1,5 +1,5 @@
 import pytest
-from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole
+from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"
@@ -88,6 +88,20 @@ def test_get_first():
     correct_value = {'S': {'(','a'}, 'L': {'(','a'}, "L'": {',', '𝛆'}}
     actual_value = get_firsts(gram, non_terminal_list)
     assert_it(correct_value, actual_value, case)
+
+
+    case = f"{ANSI_YELLOW}get first case 5{ANSI_RESET}"
+    gram = {
+    'S': [['A', 'a','A','b'],['B', 'b','B','a']],
+    'A': [['𝛆']],
+    'B': [['𝛆']]
+    }
+
+    non_terminal_list = {'S', 'A', 'B'}
+    correct_value ={'S': {'a', 'b'}, 'A': {'𝛆'}, 'B': {'𝛆'}}
+    actual_value = get_firsts(gram, non_terminal_list)
+    assert_it(correct_value, actual_value, case)
+
 
 
 def test_rhs():
@@ -270,9 +284,103 @@ def test_get_follow():
     correct_value = {'h'}
     assert_it(correct_value, actual_value, case)
 
+    
+    gram = {
+    'S': [['A']],
+    'A': [['a','B',"A'"]],
+    "A'": [['d',"A'"],['𝛆']],
+    'B': [['b']],
+    'C': [['g'],['D','g']],
+    'D': [['A','c','d'], ['B'], ['c','A']]
+    }
+
+    ase = f"{ANSI_YELLOW}get follow case 5{ANSI_RESET}"
+    #find follow for A
+    non_terminal_list = {'S','A', "A'", 'B','C','D'} 
+    non_terminal = 'S'   
+    first_set = get_firsts(gram, non_terminal_list)
+    start_symbol = 'S'
 
 
-    pass
+    actual_value = get_follow(gram, non_terminal, first_set, start_symbol, non_terminal_list)
+    correct_value = {'$'}
+    assert_it(correct_value, actual_value, case)
+
+def test_get_follows():
+    gram = {
+    
+    'S' : [['a','B','D','h']],
+    'B' : [['c', 'C']],
+    'C' : [['b','C'],['𝛆']],
+    'D' : [['E','F']],
+    'E' : [['g'],['𝛆']],
+    'F' : [['f'],['𝛆']]
+    }
+
+    case = f"{ANSI_YELLOW}get follows case 1{ANSI_RESET}"
+    #find follow for A
+    non_terminal_list = {'S','B','C','D','E','F'}   
+    first_set = get_firsts(gram, non_terminal_list)
+    start_symbol = 'S'
+
+    actual_value = get_follows(gram, first_set, start_symbol, non_terminal_list)
+    correct_value =  {'S': {'$'}, 'F': {'h'}, 'C': {'f', 'h', 'g'}, 'B': {'f', 'h', 'g'}, 'E': {'f', 'h'}, 'D': {'h'}}
+
+    assert_it(correct_value, actual_value, case)
+
+
+    gram = {
+    'S': [['A']],
+    'A': [['a','B',"A'"]],
+    "A'": [['d',"A'"],['𝛆']],
+    'B': [['b']],
+    'C': [['g']]
+    
+    }
+
+    case = f"{ANSI_YELLOW}get follows case 2{ANSI_RESET}"
+    non_terminal_list = {'S', 'A', "A'", 'B','C'} 
+    first_set = get_firsts(gram, non_terminal_list)
+    start_symbol = 'S'  
+    actual_value = get_follows(gram, first_set, start_symbol, non_terminal_list)
+    correct_value =  {'A': {'$'}, 'C': set(), "A'": {'$'}, 'S': {'$'}, 'B': {'$', 'd'}}
+    assert_it(correct_value, actual_value, case)
+
+    gram = {
+    'S': [['(','L',')'],['a']],
+    'L': [['S',"L'"]],
+    "L'": [[',','S'],['𝛆']]
+    }
+
+    case = f"{ANSI_YELLOW}get follows case 3{ANSI_RESET}"
+    non_terminal_list = {'S', 'L', "L'"} 
+    first_set = get_firsts(gram, non_terminal_list)
+    start_symbol = 'S'  
+    actual_value = get_follows(gram, first_set, start_symbol, non_terminal_list)
+    correct_value =  {'L': {')'}, 'S': {'$', ')', ','}, "L'": {')'}}
+    assert_it(correct_value, actual_value, case)
+
+    gram = {
+    'S': [['A','a','A','b'],['B','b', 'B', 'a']],
+    'A': [['𝛆']],
+    'B': [['𝛆']]
+    }
+
+    case = f"{ANSI_YELLOW}get follows case 4{ANSI_RESET}"
+    non_terminal_list = {'S', 'A', 'B'} 
+    first_set = get_firsts(gram, non_terminal_list)
+    start_symbol = 'S'  
+    actual_value = get_follows(gram, first_set, start_symbol, non_terminal_list)
+    correct_value =  {'A': {'a', 'b'}, 'S': {'$'}, 'B': {'a','b'}}
+    assert_it(correct_value, actual_value, case)
+
+    
+
+    
+
+
+
+
 def test_parse_production():
 
     case = f"{ANSI_YELLOW}parse production case 1{ANSI_RESET}"
@@ -298,10 +406,17 @@ def main():
     # any of those functions.
     try:
         test_get_first()
+        print_blue('*.*.'*15)
         test_rhs()
+        print_blue('*.*.'*15)
         test_parse_production()
+        print_blue('*.*.'*15)
         test_find_first_sole()
+        print_blue('*.*.'*15)
         test_get_follow()
+        print_blue('*.*.'*15)
+        test_get_follows()
+
     except AssertionError as e:
         print("Test case failed:\n", str(e))
         exit(-1)

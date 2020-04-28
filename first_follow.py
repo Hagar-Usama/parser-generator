@@ -55,19 +55,43 @@ def get_first(grammar, non_terminal, non_terminal_list):
 
     # scanning each list in non_terminal
     for j in grammar[non_terminal]:
-        ##print(j[0])
+        #print(f'{j[0]}')
         if is_non_terminal(j[0], non_terminal_list):
             # scanning each element in list
             for element in j:
+                flag = False
                 if is_non_terminal(element, non_terminal_list):
                     x = get_first(grammar, element, non_terminal_list)
-                    ##print(f"first of {element}")
-                    first_i.update(x)
-                    if not has_epsilon(x):
+
+                    f = has_epsilon(x)
+
+                    """
+                    if has_epsilon(x):
+                        x.remove('𝛆')
+                        flag = True
+                    else:
                         break
-                else:
-                    first_i.add(element)
+
+                    """
                     
+                    if f:
+                        x.remove('𝛆')
+                        first_i.update(x)
+                        flag = True
+                    else:
+                        first_i.update(x)
+                        break
+                    
+                else:
+                    if element == '𝛆':
+                        flag = True 
+                    else:
+                        first_i.add(element)
+                #print(flag)
+                    #break
+            if flag:
+                #print('flag is true')
+                first_i.add('𝛆')       
         else:
             first_i.add(j[0])
     return first_i
@@ -123,6 +147,14 @@ def get_first_1(grammar, non_terminal, non_terminal_list):
 
     return first_i
 
+def get_follows(grammar, first_set, start_symbol, non_terminal_list):
+    follows = {}
+    for non_terminal in non_terminal_list:
+        follow = get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list)
+        follows[non_terminal] = follow
+
+    return follows
+
 def get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list):
     '''
         1) for starting symbol place $ in the follow set
@@ -143,7 +175,7 @@ def get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list
 
     # step one get the follows based on firsts
     productions = parse_production(get_rhs(grammar, non_terminal))
-    ##print(f'productions for {non_terminal} : {productions}')
+    print(f'productions for {non_terminal} : {productions}')
 
     first_follow = find_first_sole(grammar, non_terminal, productions, non_terminal_list)
     ##print(f'initial follows are {first_follow[0]} : {first_follow[1]}')
