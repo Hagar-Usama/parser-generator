@@ -1,5 +1,5 @@
 import pytest
-from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production
+from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"
@@ -118,6 +118,25 @@ def test_rhs():
     print(len(actual_value["S"]))
     assert_it(correct_value, actual_value, case)
 
+def test_find_first_sole():
+    gram = {
+    'S': [['A']],
+    'A': [['a','B',"A'"]],
+    "A'": [['d',"A'"],['𝛆']],
+    'B': [['b']],
+    'C': [['g'],['D','g']],
+    'D': [['A','c','d'], ['B'], ['c','A']]
+
+    }
+
+    case = f"{ANSI_CYAN}find first case 1{ANSI_RESET}"
+    #find follow for A
+    non_terminal_list = ['S', "A", "A'", "B", "C", "d"]
+    non_terminal_production = {'S' : [['𝛆']], 'D': [['c' , 'd'], ['𝛆']]}
+    actual_value, actual_follow = find_first_sole(gram,'A', non_terminal_production, non_terminal_list)
+    correct_value = None
+    #assert_it(correct_value, actual_value, case)
+    assert_it(correct_value, actual_follow, case)
 
 def test_find_first():
 
@@ -168,8 +187,8 @@ def main():
     try:
         test_get_first()
         test_rhs()
-        test_find_first()
         test_parse_production()
+        test_find_first_sole()
     except AssertionError as e:
         print("Test case failed:\n", str(e))
         exit(-1)

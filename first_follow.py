@@ -132,7 +132,50 @@ def parse_production(production_list):
         #new_list_out.append(new_list)
     #print(new_production_list)
     return new_production_list
+
+def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal_list):
+    #non terminal production for one non-terminal
+    first = set()
+    follow_of_follow = set()
     
+
+    for i in non_terminal_production:
+        count = 0
+        for j in non_terminal_production[i]:
+            count += 1
+
+            print(f'*{j}*')
+            print(f'len of j : {len(j)}')
+            for element in j:
+                if is_non_terminal(element,non_terminal_list):
+                    first.add(get_first(grammar, non_terminal, non_terminal_list))
+
+                    # if a NT has no epsilon then no need to continue
+                    if '𝛆' not in first_t:
+                        break
+                    # if NT has epsilon and it's the last one in list
+                    elif count == len(j):
+                        follow_of_follow.add(i)
+
+                else:
+                    if element == '𝛆':
+                        follow_of_follow.add(i)
+                    else:
+                        first.add(element) 
+                    break
+
+        print("*.*"*20)
+    if '𝛆' in first:
+        first.remove('𝛆')
+    if '𝛆'in follow_of_follow:
+        follow_of_follow.remove('𝛆')
+        
+    print(first)
+    print(follow_of_follow)
+    return first,follow_of_follow
+    pass 
+
+
 def find_first(grammar, non_terminal_production, non_terminal_list):
     '''
     
@@ -141,8 +184,14 @@ def find_first(grammar, non_terminal_production, non_terminal_list):
     follow_of_follow = set()
 
     count = 0
+
+    for i in non_terminal_production:
+        #print(i)
+        for j in non_terminal_production[i]:
+            print(j)
     
     #print(f'terminal production = {terminal_production}')
+    """ 
     for i in non_terminal_production:
         print(f'non-terminal production part: {non_terminal_production[i]}')
         if len(non_terminal_production[i]) == 0:
@@ -179,7 +228,8 @@ def find_first(grammar, non_terminal_production, non_terminal_list):
                 else:
                     first_i.add(j)
     first_i.remove('𝛆')
-    print(f'i in find first = {count}')
+    print(f'i in find first = {count}') 
+    """
     return first_i
 
 
