@@ -39,6 +39,7 @@ non_terminal_list2 = ['S','A','B','C','D']
 termial_pr1 = ["S", "A" , "A'", "B", "C"]
 termial_pr3 = ["S", "L", "L'"]
 
+G_follow = {}
 def is_non_terminal(A, non_terminal_list):
     if A in non_terminal_list:
         return True
@@ -50,6 +51,31 @@ def has_epsilon(my_list):
     return False
 
 def get_first(grammar, non_terminal, non_terminal_list):
+    first_i = set()
+
+    # scanning each list in non_terminal
+    for j in grammar[non_terminal]:
+        #print(j[0])
+        if is_non_terminal(j[0], non_terminal_list):
+            # scanning each element in list
+            for element in j:
+                if is_non_terminal(element, non_terminal_list):
+                    x = get_first(grammar, element, non_terminal_list)
+                    #print(f"first of {element}")
+                    first_i.update(x)
+                    if not has_epsilon(x):
+                        break
+                else:
+                    first_i.add(element)
+                    
+        else:
+            first_i.add(j[0])
+    return first_i
+
+
+    
+
+def get_first_1(grammar, non_terminal, non_terminal_list):
     '''
     https://www.gatevidyalay.com/first-and-follow-compiler-design/
 
@@ -73,24 +99,31 @@ def get_first(grammar, non_terminal, non_terminal_list):
     '''
     first_i = set()
 
-    #print(f"first of {terminal}")
-
+    # scanning each list in non_terminal
     for j in grammar[non_terminal]:
         #print(j[0])
+
+        # if terminal add it directly
         if not is_non_terminal(j[0], non_terminal_list):
             first_i.add(j[0])
+            
         else:
+            # if a non-terminal,walk through
             for k in j:
                 if is_non_terminal(k, non_terminal_list):
                     temp = get_first(grammar, k, non_terminal_list)
                     first_i.update(temp)
                     if not has_epsilon(temp):
                         break
+                else:
+                    print(k)
+                    first_i.add[k]
+                    break
                     
 
     return first_i
 
-def get_follow(grammar, non_terminal, first_set, start_symbol):
+def get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list):
     '''
         1) for starting symbol place $ in the follow set
         2) if the is a production A → 𝞪B𝝱:
@@ -100,6 +133,8 @@ def get_follow(grammar, non_terminal, first_set, start_symbol):
         3) if the is a production A → 𝞪B:
             Follow(B) = Follow(A)
 
+        find_first_sole → returns firsts and follows NT
+
     '''
     follow_i = set()
     if non_terminal is start_symbol:
@@ -107,9 +142,13 @@ def get_follow(grammar, non_terminal, first_set, start_symbol):
         print("follow first")
 
     # step one get the follows based on firsts
-    productions = get_rhs(grammar, non_terminal)
-    for production in productions:
-        find_first()
+    productions = parse_production(get_rhs(grammar, non_terminal))
+    first_follow = find_first_sole(grammar, non_terminal, productions, non_terminal_list)
+    follow_i.update(first_follow[0])
+    for i in first_follow[1]:
+        follow_i.update(get_follow(grammar, i, first_set, start_symbol, non_terminal_list)) 
+    return follow_i
+
 
 
 def parse_production(production_list):
@@ -133,19 +172,19 @@ def parse_production(production_list):
     #print(new_production_list)
     return new_production_list
 
+
 def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal_list):
     #non terminal production for one non-terminal
     first = set()
     follow_of_follow = set()
     
-
     for i in non_terminal_production:
         count = 0
         for j in non_terminal_production[i]:
             count += 1
 
-            print(f'*{j}*')
-            print(f'len of j : {len(j)}')
+            #print(f'*{j}*')
+            #print(f'len of j : {len(j)}')
             for element in j:
                 if is_non_terminal(element,non_terminal_list):
                     first.add(get_first(grammar, non_terminal, non_terminal_list))
@@ -164,15 +203,15 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
                         first.add(element) 
                     break
 
-        print("*.*"*20)
+        #print("*.*"*20)
     if '𝛆' in first:
         first.remove('𝛆')
     if '𝛆'in follow_of_follow:
         follow_of_follow.remove('𝛆')
-        
+
     print(first)
     print(follow_of_follow)
-    return first,follow_of_follow
+    return [first,follow_of_follow]
     pass 
 
 
@@ -271,6 +310,30 @@ def get_firsts(grammar , non_terminal_list):
 
 def main():
    print("ho ho ho")
+   grammar = {
+    
+    'F' : [['f'],['𝛆']],
+    'D' : [['E','F']],
+    'E' : [['g'],['𝛆']],
+    'C' : [['b','C'],['𝛆']],
+    'B' : [['c', 'C']],
+    'S' : [['a','B','D','h']]
+   }
+
+   non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
+
+   non_terminal = 'B'
+   first_D = get_first(grammar, 'D', non_terminal_list)
+   fist_new = get_first_1(grammar, 'D', non_terminal_list_22)
+   print(fist_new)
+
+   print(first_D)
+
+   first_set = get_firsts(grammar,non_terminal_list)
+   print(first_set)
+   start_symbol = 'S'
+   follows = get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list_22)
+   print(follows)
 
 
 if __name__ == '__main__':

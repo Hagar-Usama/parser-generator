@@ -35,7 +35,7 @@ def test_get_first():
     gram = {
     'A' : [['B','X','b','c'] , ['d','e','f'] , ['g','h','i'] , ['𝛆']],
     'X' : [['q']],
-    'B' : ['s','𝛆']
+    'B' : [['s'],['𝛆']]
     }
 
     non_terminal_list = ['A','X','B']
@@ -133,10 +133,33 @@ def test_find_first_sole():
     #find follow for A
     non_terminal_list = ['S', "A", "A'", "B", "C", "d"]
     non_terminal_production = {'S' : [['𝛆']], 'D': [['c' , 'd'], ['𝛆']]}
-    actual_value, actual_follow = find_first_sole(gram,'A', non_terminal_production, non_terminal_list)
-    correct_value = None
-    #assert_it(correct_value, actual_value, case)
-    assert_it(correct_value, actual_follow, case)
+    actual_value = find_first_sole(gram,'A', non_terminal_production, non_terminal_list)
+    correct_value = [{'c'}, {'S','D'}]
+    assert_it(correct_value, actual_value, case)
+
+    case = f"{ANSI_CYAN}find first case 2{ANSI_RESET}"
+    #find follow for A
+    non_terminal_production = parse_production(get_rhs(gram, 'D'))  
+    actual_value = find_first_sole(gram,'D', non_terminal_production, non_terminal_list)
+    correct_value = [{'g'}, set()]
+    assert_it(correct_value, actual_value, case)
+
+    gram = {
+    'A' : [['B','X','b','c'] , ['d','e','f'] , ['g','h','i'] , ['𝛆']],
+    'X' : [['q']],
+    'B' : [['X', 's'],['𝛆']]
+    }
+
+    non_terminal_list = ['A','X','B']
+
+    case = f"{ANSI_CYAN}find first case 3{ANSI_RESET}"
+    #find follow for A
+    
+    non_terminal_production = parse_production(get_rhs(gram, 'X')) 
+    actual_value = find_first_sole(gram,'X', non_terminal_production, non_terminal_list)
+    correct_value = [{'b', 's'}, set() ]
+    assert_it(correct_value, actual_value, case)
+
 
 def test_find_first():
 
@@ -188,7 +211,7 @@ def main():
         test_get_first()
         test_rhs()
         test_parse_production()
-        test_find_first_sole()
+        #test_find_first_sole()
     except AssertionError as e:
         print("Test case failed:\n", str(e))
         exit(-1)
