@@ -46,6 +46,7 @@ def test_get_first():
 
     # case 2
     case = f"{ANSI_CYAN}get first case 2{ANSI_RESET}"
+    
     gram = {
     'S': [['A','B','C','D']],
     'A': [['a'], ['𝛆']],
@@ -59,7 +60,7 @@ def test_get_first():
     actual_value = get_firsts(gram, non_terminal_list)
     assert_it(correct_value, actual_value, case)
 
-    # case 3
+    # case 3 ex_2
     case = f"{ANSI_CYAN}get first case 3{ANSI_RESET}"
     gram = {
     'S': [['A']],
@@ -74,6 +75,20 @@ def test_get_first():
     correct_value = {'S': {'a'}, 'A': {'a'}, "A'": {'d', '𝛆'}, 'B': {'b'}, 'C': {'g'}}
     actual_value = get_firsts(gram, non_terminal_list)
     assert_it(correct_value, actual_value, case)
+
+    # case 4 ex3 gatevid
+    case = f"{ANSI_CYAN}get first case 4{ANSI_RESET}"
+    gram = {
+    'S': [['(','L',')'],['a']],
+    'L': [['S',"L'"]],
+    "L'": [[',','S'],['𝛆']]
+    }
+
+    non_terminal_list = {"S", "L", "L'"}
+    correct_value = {'S': {'(','a'}, 'L': {'(','a'}, "L'": {',', '𝛆'}}
+    actual_value = get_firsts(gram, non_terminal_list)
+    assert_it(correct_value, actual_value, case)
+
 
 def test_rhs():
     # case 1
@@ -160,6 +175,25 @@ def test_find_first_sole():
     correct_value = [{'b', 's'}, set() ]
     assert_it(correct_value, actual_value, case)
 
+    gram = {
+    
+    'S' : [['a','B','D','h']],
+    'B' : [['c', 'C']],
+    'C' : [['b','C'],['𝛆']],
+    'D' : [['E','F']],
+    'E' : [['g'],['𝛆']],
+    'F' : [['f'],['𝛆']]
+    }
+
+    case = f"{ANSI_CYAN}find first case 4{ANSI_RESET}"
+    #find follow for A
+    non_terminal_list = {'S','B','C','D','E','F'}    
+    non_terminal_production = parse_production(get_rhs(gram, 'B')) 
+    actual_value = find_first_sole(gram,'B', non_terminal_production, non_terminal_list)
+    correct_value = [{'g','f','h'}, set() ]
+    assert_it(correct_value, actual_value, case)
+
+
 
 def test_find_first():
 
@@ -211,7 +245,7 @@ def main():
         test_get_first()
         test_rhs()
         test_parse_production()
-        #test_find_first_sole()
+        test_find_first_sole()
     except AssertionError as e:
         print("Test case failed:\n", str(e))
         exit(-1)
