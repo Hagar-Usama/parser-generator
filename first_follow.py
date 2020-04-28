@@ -1,4 +1,4 @@
-
+import itertools
 # test cases
 # https://www.gatevidyalay.com/first-and-follow-compiler-design/
 
@@ -317,28 +317,85 @@ def find_first(grammar, non_terminal_production, non_terminal_list):
     return first_i
 
 
+def get_index(key, the_list ):
+
+    
+    index_list = []
+
+    for i in range(0, len(the_list)):
+        print(the_list[i])
+        if the_list[i] == key:
+            index_list.append(i)
+    return index_list
+
+def slice_list(index_list, the_list):
+
+    slices = set()
+    for i in range(0, len(index_list)-1):
+        begin = index_list[i] + 1
+        end = index_list[i+1] - 1
+        slices.add(tuple(the_list[begin: end]))
+        print(f'{the_list[begin: end]}')
+    begin = index_list[i]
+    last_element = the_list[begin:]
+    
+    
+    
+    return slices
+
 
 def get_rhs(grammar, non_terminal):
     rhs_dict = {}
-    first = []
-    second = []
+    #first = set()
+   
     # for each rule
     for i in grammar:
         ##print(grammar[i])
         # for each list in a rule
-        first = []
+        first = set()
+        second = []
+        indx_list = set()
+        slices = []
+
         for j in grammar[i]:
             ##print(f'j is: {j}')
             if non_terminal in j:
+                
+                # if terminal is found, let slice it
                 ##print("guard")
+                # temp = j
+                the_index = get_index(non_terminal, j)
+
+                # get first occurance of the NT
                 indx = j.index(non_terminal)
+                temp = j[indx+1:]
+                if non_terminal in temp:
+                    slices_temp = [list(y) for x, y in itertools.groupby(temp, lambda z: z == non_terminal) if not x]
+                    for z in slices_temp:
+                        if z not in slices:
+                            slices.append(z)
+                else:
+                    if temp not in slices:
+                        slices.append(temp) 
+
+                print(f"*slices are* {slices} **")
                 ##print(indx)
                 ##print(f"{i} --> *{j[indx+1:]}* ")
-                if j[indx+1:] not in first:
-                    first.append(j[indx+1:])
-        if len(first) != 0:
-            rhs_dict[i] = first
+                #if j[indx+1:] not in first:
+                #first.add(j[indx+1:])
+                #first.add('ff')
+                tick_list = tuple(slices)
+                #first.add(tick_list)
+
+        #slices = list(dict.fromkeys(slices))
+        
+
+        if len(slices) != 0:
+            rhs_dict[i] = list(slices)
+        
+        print(slices)
         #first.clear()
+    print(rhs_dict)
     return rhs_dict
         
 def get_firsts(grammar , non_terminal_list):
@@ -355,6 +412,19 @@ def get_firsts(grammar , non_terminal_list):
 
 def main():
    #print("ho ho ho")
+
+   the_list = ['g','A','f','A']
+   delim = 'A'
+   slices = [list(y) for x, y in itertools.groupby(the_list, lambda z: z == delim) if not x]
+   print(slices)
+
+   
+
+   index = get_index('A', ['A','B','A','h'])
+
+   x = slice_list(index, ['a','B','D','h'] )
+   print(f'len of x = {len(x)}')
+
    grammar = {
     
     'S' : [['a','B','D','h']],
