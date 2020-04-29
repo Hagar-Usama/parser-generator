@@ -177,7 +177,9 @@ def get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list
     productions = parse_production(get_rhs(grammar, non_terminal))
     print(f'productions for {non_terminal} : {productions}')
 
-    first_follow = find_first_sole(grammar, non_terminal, productions, non_terminal_list)
+    #first_follow = find_first_sole(grammar, non_terminal, productions, non_terminal_list)
+    first, follow = find_first_sole(grammar, non_terminal, productions, non_terminal_list)
+    first_follow = parse_find_first(first, follow)
     ##print(f'initial follows are {first_follow[0]} : {first_follow[1]}')
 
     follow_i.update(first_follow[0])
@@ -255,9 +257,11 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
     ##print(first)
     ##print("follow of follow")
     ##print(follow_of_follow)
-    return [first,follow_of_follow]
+    return first, follow_of_follow
     
 
+def parse_find_first(first_set , follow_set):
+    return [first_set, follow_set]
 
 def find_first(grammar, non_terminal_production, non_terminal_list):
     '''
@@ -397,7 +401,67 @@ def get_rhs(grammar, non_terminal):
         #first.clear()
     print(rhs_dict)
     return rhs_dict
+
+def separate_production(production_list):
+    sep_production = []
+
+    # for each production
+    for i in production_list:
+        # for each list in a production
+        for j in production_list[i]:
+            
+            sep_production.append({ i: [j]})
+    print(sep_production)
+    return sep_production
+
+
+def build_parsing_table(grammar, non_terminal_list):
+
+    '''
+    build a predictive parsing table
+
+    for each production n → 𝞪
+        for each a ∈ first(𝞪)
+            add n → 𝞪 to T[n,a]
+        if 𝜺 ∈ first(𝞪) then
+            for each b ∈ follow(n)
+                add n → 𝞪 to T[n,a]
+    '''
+
+    # separate grammar
+    sep_production = []
+    for g in grammar:
+        print({g: grammar[g]})
+        temp_production = {g: grammar[g]}
+        list_sep = separate_production(temp_production)
+        for i in list_sep:
+            sep_production.append(i)
+
+    for g in sep_production:
+        # [{'C': [['b', 'C']]}, {'C': [['𝛆']]}]
+        print('--.--.--')
+        # production list
+        print(g)
+
+    
+    
+    # for each production n → 𝞪
+    for n in sep_production:
+        # for each a ∈ first(𝞪)
+        # add n → 𝞪 to T[n,a]
+        #find_first_sole(grammar, )
+        #print(n)
+        #print(f'---> {n[0]}')
         
+        # one iteration loop
+        for i in n:
+            print(f'*.*.*{n[i]} , {i}*.*.*')
+            firsts, follows = find_first_sole(grammar, i, n, non_terminal_list)
+            print(firsts)
+
+
+
+
 def get_firsts(grammar , non_terminal_list):
     '''
      collects each firsts in a BIG dictionary   
@@ -413,6 +477,8 @@ def get_firsts(grammar , non_terminal_list):
 def main():
    #print("ho ho ho")
 
+   the_dict = {'S': [['A','a','A','b'],['B','b', 'B', 'a']]}
+   separate_production(the_dict)
    the_list = ['g','A','f','A']
    delim = 'A'
    slices = [list(y) for x, y in itertools.groupby(the_list, lambda z: z == delim) if not x]
@@ -436,8 +502,11 @@ def main():
 
    }
 
+   print("Hey hey!")
    non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
+   build_parsing_table(grammar, non_terminal_list_22)
 
+   
    non_terminal = 'F'
    #first_D = get_first(grammar, 'D', non_terminal_list)
    #fist_new = get_first_1(grammar, 'D', non_terminal_list_22)

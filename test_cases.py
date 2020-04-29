@@ -1,5 +1,6 @@
 import pytest
 from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
+from first_follow import parse_find_first
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"
@@ -162,14 +163,16 @@ def test_find_first_sole():
     #find follow for A
     non_terminal_list = ['S', "A", "A'", "B", "C", "d"]
     non_terminal_production = {'S' : [['𝛆']], 'D': [['c' , 'd'], ['𝛆']]}
-    actual_value = find_first_sole(gram,'A', non_terminal_production, non_terminal_list)
+    first, follow = find_first_sole(gram,'A', non_terminal_production, non_terminal_list)
+    actual_value = parse_find_first(first, follow) 
     correct_value = [{'c'}, {'S','D'}]
     assert_it(correct_value, actual_value, case)
 
     case = f"{ANSI_YELLOW}find first case 2{ANSI_RESET}"
     #find follow for A
-    non_terminal_production = parse_production(get_rhs(gram, 'D'))  
-    actual_value = find_first_sole(gram,'D', non_terminal_production, non_terminal_list)
+    non_terminal_production = parse_production(get_rhs(gram, 'D')) 
+    first, follow = find_first_sole(gram,'D', non_terminal_production, non_terminal_list) 
+    actual_value = parse_find_first(first, follow)
     correct_value = [{'g'}, set()]
     assert_it(correct_value, actual_value, case)
 
@@ -184,8 +187,9 @@ def test_find_first_sole():
     case = f"{ANSI_YELLOW}find first case 3{ANSI_RESET}"
     #find follow for A
     
-    non_terminal_production = parse_production(get_rhs(gram, 'X')) 
-    actual_value = find_first_sole(gram,'X', non_terminal_production, non_terminal_list)
+    non_terminal_production = parse_production(get_rhs(gram, 'X'))
+    first, follow = find_first_sole(gram,'X', non_terminal_production, non_terminal_list)
+    actual_value = parse_find_first(first, follow)
     correct_value = [{'b', 's'}, set() ]
     assert_it(correct_value, actual_value, case)
 
@@ -203,7 +207,8 @@ def test_find_first_sole():
     #find follow for A
     non_terminal_list = {'S','B','C','D','E','F'}    
     non_terminal_production = parse_production(get_rhs(gram, 'B')) 
-    actual_value = find_first_sole(gram,'B', non_terminal_production, non_terminal_list)
+    first, follow = find_first_sole(gram,'B', non_terminal_production, non_terminal_list)
+    actual_value = parse_find_first(first, follow)
     correct_value = [{'g','f','h'}, set() ]
     assert_it(correct_value, actual_value, case)
 
