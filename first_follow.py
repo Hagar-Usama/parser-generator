@@ -215,6 +215,7 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
     #non terminal production for one non-terminal
     first = set()
     follow_of_follow = set()
+    external_list = []
     
     for i in non_terminal_production:
         count = 0
@@ -224,10 +225,12 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
             ##print(f'*{j}*')
             ##print(f'len of j : {len(j)}')
             for element in j:
-                if is_non_terminal(element,non_terminal_list):
+                internal_list = set()
+                if is_non_terminal(element, non_terminal_list):
                     first_part = get_first(grammar, element, non_terminal_list)
                     ##print(f'get partial first {first_part} for {element}')
                     first.update(first_part)
+                    internal_list.update(first_part)
 
                     # if a NT has no epsilon then no need to continue
                     if '𝛆' not in first_part:
@@ -240,8 +243,12 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
                     if element == '𝛆':
                         follow_of_follow.add(i)
                     else:
-                        first.add(element) 
+                        first.add(element)
+                        internal_list.add(element) 
+
                     break
+            external_list.append(internal_list)
+            print(f'internal list: {internal_list}')
 
         ##print("*.*"*20)
     if '𝛆' in first:
@@ -249,7 +256,7 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
     if '𝛆'in follow_of_follow:
         follow_of_follow.remove('𝛆')
     if non_terminal in follow_of_follow:
-        # ignore it
+        # ignore it (avoid recursion)
         follow_of_follow.remove(non_terminal)
 
 
@@ -257,6 +264,7 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
     ##print(first)
     ##print("follow of follow")
     ##print(follow_of_follow)
+    print(f"external list is: {external_list}")
     return first, follow_of_follow
     
 
@@ -410,12 +418,12 @@ def separate_production(production_list):
         # for each list in a production
         for j in production_list[i]:
             
-            sep_production.append({ i: [j]})
+            sep_production.append({ i: j})
     print(sep_production)
     return sep_production
 
 
-def build_parsing_table(grammar, non_terminal_list):
+def build_parsing_table(grammar, non_terminal_list, start_symbol):
 
     '''
     build a predictive parsing table
@@ -426,10 +434,69 @@ def build_parsing_table(grammar, non_terminal_list):
         if 𝜺 ∈ first(𝞪) then
             for each b ∈ follow(n)
                 add n → 𝞪 to T[n,a]
+
+    let P be the list of grammar {n → 𝞪} , T the parsing table:
+
+        b = n → 𝞪
+        for P in grammar:
+            x = first(P.𝞪)
+            for i in x:
+                if i != 𝜺:
+                    T[n,i] = P
+            if has_espilon(x):
+                y = follow(P.n)
+                for j in y:
+                    T[n,j] = P 
+
     '''
 
     # separate grammar
-    sep_production = []
+    # get list of dicts each point to one production
+    #sep_production = separate_production(grammar)
+    T = {}
+    first_set = get_firsts(grammar, non_terminal_list)
+
+    for g in grammar:
+
+        ## returns modified production list dict()
+        # alpha shall be a list of production list
+        print("*"*15)
+        print('[start] separate grammar production')
+        productions_list = separate_grammar_production(g, grammar[g])
+        # need n--> NT ,
+        # get_dict_items()
+        for p in productions_list:
+            print(f'i in production  n → 𝞪 : {p}')
+            x,_ = find_first_sole(grammar, 'z',p,non_terminal_list)
+            key,val =  get_dict_items(p)
+            for i in x:
+                if i != '𝜺':
+                    print(f'[n,i] → P, [{key},{i}]  → {p}')
+                    temp_dict = {i:p}
+                    T[key]= temp_dict  
+            if has_epsilon(x):
+                y = get_follow(grammar,key, first_set, start_symbol,non_terminal_list)
+                for j in y:
+                    temp_dict = {j:p}
+                    T[key]= temp_dict
+
+            #print(f"x is {x}***")
+            if not x:
+                print("empty")
+            print('[end] separate grammar production')
+            print("*"*15)
+
+    print(T)
+    print(T['S']['a'])
+
+        
+        # x = find_first_sole(grammar, 'z',alpha[0],non_terminal_list)
+        ## p --> terminal , gramamr[p] --> list of lists
+        #print(f'{p}: {grammar[p]}')
+        
+
+    
+    """ 
     for g in grammar:
         print({g: grammar[g]})
         temp_production = {g: grammar[g]}
@@ -442,9 +509,9 @@ def build_parsing_table(grammar, non_terminal_list):
         print('--.--.--')
         # production list
         print(g)
-
+    """
     
-    
+    """  
     # for each production n → 𝞪
     for n in sep_production:
         # for each a ∈ first(𝞪)
@@ -458,9 +525,26 @@ def build_parsing_table(grammar, non_terminal_list):
             print(f'*.*.*{n[i]} , {i}*.*.*')
             firsts, follows = find_first_sole(grammar, i, n, non_terminal_list)
             print(firsts)
+    """
 
 
+def separate_grammar_production(key, value):
+    '''
+        key is the non-terminal
+        value is the list pointed to
+    '''
+    production_dict = {key: value}
+    alpha = []
 
+    for i in value:
+        alpha.append({key: [i]})
+
+    #print(alpha)
+    return alpha
+
+def get_dict_items(the_dict):
+    for i in the_dict:
+        return i, the_dict[i][0]
 
 def get_firsts(grammar , non_terminal_list):
     '''
@@ -476,20 +560,21 @@ def get_firsts(grammar , non_terminal_list):
 
 def main():
    #print("ho ho ho")
+   
 
-   the_dict = {'S': [['A','a','A','b'],['B','b', 'B', 'a']]}
-   separate_production(the_dict)
-   the_list = ['g','A','f','A']
-   delim = 'A'
-   slices = [list(y) for x, y in itertools.groupby(the_list, lambda z: z == delim) if not x]
-   print(slices)
+   #he_dict = {'S': [['A','a','A','b'],['B','b', 'B', 'a']]}
+   #separate_production(the_dict)
+   #the_list = ['g','A','f','A']
+   #delim = 'A'
+   #slices = [list(y) for x, y in itertools.groupby(the_list, lambda z: z == delim) if not x]
+   #print(slices)
 
    
 
-   index = get_index('A', ['A','B','A','h'])
+   #index = get_index('A', ['A','B','A','h'])
 
-   x = slice_list(index, ['a','B','D','h'] )
-   print(f'len of x = {len(x)}')
+   #x = slice_list(index, ['a','B','D','h'] )
+   #print(f'len of x = {len(x)}')
 
    grammar = {
     
@@ -504,20 +589,20 @@ def main():
 
    print("Hey hey!")
    non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
-   build_parsing_table(grammar, non_terminal_list_22)
+   build_parsing_table(grammar, non_terminal_list_22, 'S')
 
    
-   non_terminal = 'F'
+   #non_terminal = 'F'
    #first_D = get_first(grammar, 'D', non_terminal_list)
    #fist_new = get_first_1(grammar, 'D', non_terminal_list_22)
    ##print(fist_new)
    ##print(first_D)
 
-   first_set = get_firsts(grammar,non_terminal_list)
+   #first_set = get_firsts(grammar,non_terminal_list)
    ##print(first_set)
-   start_symbol = 'S'
+   #start_symbol = 'S'
 
-   follows = get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list_22)
+   #follows = get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list_22)
    #print("follows are")
    #print(follows)
 

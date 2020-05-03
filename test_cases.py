@@ -1,6 +1,6 @@
 import pytest
 from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
-from first_follow import parse_find_first
+from first_follow import parse_find_first, separate_production
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"
@@ -394,6 +394,21 @@ def test_parse_production():
     correct_value = {'S' : [['𝛆']], 'D': [['c' , 'd'], ['𝛆']]}
     assert_it(correct_value, actual_value, case)
 
+def test_separate_production():
+
+    case = f"{ANSI_YELLOW}Separate Production case 1{ANSI_RESET}"
+    gram = {
+    'A' : [['B','X','b','c'] , ['d','e','f'] , ['g','h','i'] , ['𝛆']],
+    'X' : [['q']],
+    'B' : [['s'],['𝛆']]
+    }
+
+    actual_value = separate_production(gram)
+    correct_value = [{'A': ['B', 'X', 'b', 'c']}, {'A': ['d', 'e', 'f']}, {'A': ['g', 'h', 'i']}, {'A': ['𝛆']}, {'X': ['q']}, {'B': ['s']}, {'B': ['𝛆']}]
+    assert_it(correct_value, actual_value, case)
+
+
+
 
 
 def assert_it(correct_value, actual_value, case=""):
@@ -417,10 +432,12 @@ def main():
         test_parse_production()
         print_blue('*.*.'*15)
         test_find_first_sole()
-        print_blue('*.*.'*15)
-        test_get_follow()
-        print_blue('*.*.'*15)
-        test_get_follows()
+        #print_blue('*.*.'*15)
+        #test_get_follow()
+        #print_blue('*.*.'*15)
+        #test_get_follows()
+        #rint_blue('*.*.'*15)
+        #test_separate_production()
 
     except AssertionError as e:
         print("Test case failed:\n", str(e))
