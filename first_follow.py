@@ -10,7 +10,10 @@ ANSI_PURPLE = "\u001B[35m"
 ANSI_ORANGE_BG = "\033[48;2;255;165;0m"
 ANSI_DARK_CYAN = "\033[96m"
 
+'''
+sync is reserved now
 
+'''
 
 def print_dark_cyan(msg):
     print(f"{ANSI_DARK_CYAN}{msg}{ANSI_RESET}")
@@ -71,6 +74,69 @@ termial_pr1 = ["S", "A" , "A'", "B", "C"]
 termial_pr3 = ["S", "L", "L'"]
 
 G_follow = {}
+
+def get_terminal_list(grammar , option=0):
+    nt = get_non_terminal_list(grammar)
+    #nt_list = list(nt)
+    ternmial_list = set()
+
+    for p in grammar:
+        for i in grammar[p]:
+            for t in i:
+                if t not in nt:
+                    ternmial_list.add(t)
+
+    # ternmial_list.update(ternmial_list.difference(nt))
+    
+    if has_epsilon(ternmial_list):
+        ternmial_list.remove('𝛆')
+
+    #print_red(ternmial_list)
+    if option:
+        ternmial_list.add('$')
+
+    #print_yellow(ternmial_list)
+    #print_blue(nt)
+    return ternmial_list
+
+
+def get_non_terminal_list(grammar):
+    non_terminal_list = set()
+
+    for nt in grammar:
+        non_terminal_list.add(nt)
+        
+   
+    #print_blue(non_terminal_list)
+    return non_terminal_list
+    
+def hash_it(keys):
+    keys = list(keys)
+    index_list = [*range(0, len(keys), 1)] 
+    dictionary = dict(zip(keys,index_list))
+    #print_dark_cyan(dictionary)
+    return dictionary
+
+def initialize_parsing_tree(non_terminal_list, terminal_list):
+
+    #row_dict = hash_it(non_terminal_list)
+    #col_dict = hash_it(terminal_list)
+
+    #row = ['sync'] * len(non_terminal_list)
+    col = ['sync'] * len(terminal_list)
+
+    parsing_table = []
+
+    for i in non_terminal_list:
+        parsing_table.append(col)
+
+    #print(row)
+    #print(col)
+    #print_purple(parsing_table)
+    return parsing_table
+    
+   
+   
 def is_non_terminal(A, non_terminal_list):
     if A in non_terminal_list:
         return True
@@ -468,7 +534,7 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
         for each a ∈ first(𝞪)
             add n → 𝞪 to T[n,a]
         if 𝛆 ∈ first(𝞪) then
-            for eac`h b ∈ follow(n)
+            for each b ∈ follow(n)
                 add n → 𝞪 to T[n,a]
 
     let P be the list of grammar {n → 𝞪} , T the parsing table:
@@ -490,7 +556,17 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
     # get list of dicts each point to one production
     #sep_production = separate_production(grammar)
     T = {}
+
+    non_terminal_list = get_non_terminal_list(grammar)
+    terminal_list = get_terminal_list(grammar,1)
+
+    # list of lists initialized with 'sync'
+    parsing_table = initialize_parsing_tree(non_terminal_list,terminal_list)
+    terminal_dict = hash_it(terminal_list)
+    non_terminal_dict = hash_it(non_terminal_list)
+
     first_set = get_firsts(grammar, non_terminal_list)
+    #print_red(parsing_table)
 
     for g in grammar:
 
@@ -506,18 +582,24 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
         temp_dict2 = {}
 
         for p in productions_list:
-            print(f'i in production  n → 𝞪 : {p}')
+            #print(f'i in production  n → 𝞪 : {p}')
             x,_ = find_first_sole(grammar, 'z',p,non_terminal_list,1)
             key,val =  get_dict_items(p)
-            
+            #index_row = non_terminal_dict[key]
+            #print_green(f'{key}, {index_row}')
 
-            # print_yellow(f'firsts : {x}')
+            #print_yellow(f'firsts : {x}')
 
             for i in x:
                 if i != '𝛆':
                     # print(f'[n,i] → P, [{key},{i}]  → {p}')
                     # print(f"add {i}")
                     temp_dict[i] = p
+
+                   
+                    #index_col = terminal_dict[i]
+                   # parsing_table[index_row][index_col] = p
+            #print_yellow(parsing_table[non_terminal_dict[key]])
                     
                 #T[key]= temp_dict  
 
@@ -528,6 +610,9 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
                 # print_green(f"follow: {y}")
                 for j in y:
                     temp_dict[j] = p
+
+                    index_col = terminal_dict[j]
+                    #parsing_table[index_row][index_col] = p
                 # print(f'temp_dict: {temp_dict}')
 
             T[key]= temp_dict
@@ -535,7 +620,7 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
             # print(f"x is {x}***")
             #print('[end] separate grammar production')
             #print("*"*15)
-
+    # print_green(parsing_table)
     #print(T)
     return T
     
@@ -602,21 +687,12 @@ def main():
    print("Hey hey!")
    non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
    build_parsing_table(grammar, non_terminal_list_22, 'S')
+   get_non_terminal_list(grammar)
+   t = get_terminal_list(grammar)
+ 
+
 
    
-   #non_terminal = 'F'
-   #first_D = get_first(grammar, 'D', non_terminal_list)
-   #fist_new = get_first_1(grammar, 'D', non_terminal_list_22)
-   ##print(fist_new)
-   ##print(first_D)
-
-   #first_set = get_firsts(grammar,non_terminal_list)
-   ##print(first_set)
-   #start_symbol = 'S'
-
-   #follows = get_follow(grammar, non_terminal, first_set, start_symbol, non_terminal_list_22)
-   #print("follows are")
-   #print(follows)
 
 
 if __name__ == '__main__':

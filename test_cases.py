@@ -446,7 +446,13 @@ def test_build_parsing_table():
 
     non_terminal_list = {"E","E'", "T", "T'", "F"}
     actual_value = build_parsing_table(grammar, non_terminal_list, 'E')
-    correct_value = None
+    correct_value = {
+    'E': {'(': {'E': [['T', "E'"]]}, 'x': {'E': [['T', "E'"]]}, 'y': {'E': [['T', "E'"]]}},
+    "E'": {'+': {"E'": [['+', 'T', "E'"]]}, ')': {"E'": [['𝛆']]}, '$': {"E'": [['𝛆']]}},
+    'T': {'(': {'T': [['F', "T'"]]}, 'x': {'T': [['F', "T'"]]}, 'y': {'T': [['F', "T'"]]}},
+    "T'": {'*': {"T'": [['*', 'F', "T'"]]}, '+': {"T'": [['𝛆']]}, '$': {"T'": [['𝛆']]}, ')': {"T'": [['𝛆']]}},
+    'F': {'(': {'F': [['(', 'E', ')']]}, 'x': {'F': [['x']]}, 'y': {'F': [['y']]}}
+    } 
 
     assert_it(correct_value, actual_value, case)
 
