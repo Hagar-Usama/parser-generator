@@ -1,6 +1,6 @@
 import pytest
 from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
-from first_follow import parse_find_first, separate_production
+from first_follow import parse_find_first, separate_production, build_parsing_table
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"
@@ -234,7 +234,7 @@ def test_find_first():
     correct_value = None
     assert_it(correct_value, actual_value, case)
 
-    pass
+ 
 
 def test_get_follow():
     gram = {
@@ -407,6 +407,48 @@ def test_separate_production():
     correct_value = [{'A': ['B', 'X', 'b', 'c']}, {'A': ['d', 'e', 'f']}, {'A': ['g', 'h', 'i']}, {'A': ['𝛆']}, {'X': ['q']}, {'B': ['s']}, {'B': ['𝛆']}]
     assert_it(correct_value, actual_value, case)
 
+def test_build_parsing_table():
+
+    case = f"{ANSI_YELLOW}Build Parsing Table case 1{ANSI_RESET}"
+    grammar = {
+    
+    'S' : [['a','B','D','h']],
+    'B' : [['c', 'C']],
+    'C' : [['b','C'],['𝛆']],
+    'D' : [['E','F']],
+    'E' : [['g'],['𝛆']],
+    'F' : [['f'],['𝛆']]
+
+     }
+
+
+    non_terminal_list = {'S','A', 'B','C','D', 'E', 'F'}
+    actual_value = build_parsing_table(grammar, non_terminal_list, 'S')
+    correct_value = {
+            'S': {'a': {'S': [['a', 'B', 'D', 'h']]}},
+            'B': {'c': {'B': [['c', 'C']]}},
+            'C': {'b': {'C': [['b', 'C']]}, 'h': {'C': [['𝛆']]}, 'g': {'C': [['𝛆']]}, 'f': {'C': [['𝛆']]}},
+            'D': {'g': {'D': [['E', 'F']]}, 'f': {'D': [['E', 'F']]}, 'h': {'D': [['E', 'F']]}},
+            'E': {'g': {'E': [['g']]}, 'h': {'E': [['𝛆']]}, 'f': {'E': [['𝛆']]}},
+            'F': {'f': {'F': [['f']]}, 'h': {'F': [['𝛆']]}}}
+    assert_it(correct_value, actual_value, case)
+
+    case = f"{ANSI_YELLOW}Build Parsing Table case 2{ANSI_RESET}"
+    grammar = {
+    
+    "E" : [["T", "E'"]],
+    "E'" : [['+','T', "E'"], ["𝛆"]],
+    "T" : [["F","T'"]],
+    "T'" : [['*','F', "T'"],["𝛆"]],
+    "F" : [['(', "E", ')'],['x'], ['y']]
+
+    }
+
+    non_terminal_list = {"E","E'", "T", "T'", "F"}
+    actual_value = build_parsing_table(grammar, non_terminal_list, 'E')
+    correct_value = None
+
+    assert_it(correct_value, actual_value, case)
 
 
 
@@ -432,12 +474,14 @@ def main():
         test_parse_production()
         print_blue('*.*.'*15)
         test_find_first_sole()
-        #print_blue('*.*.'*15)
-        #test_get_follow()
-        #print_blue('*.*.'*15)
-        #test_get_follows()
-        #rint_blue('*.*.'*15)
-        #test_separate_production()
+        print_blue('*.*.'*15)
+        test_get_follow()
+        print_blue('*.*.'*15)
+        test_get_follows()
+        print_blue('*.*.'*15)
+        test_separate_production()
+        print_blue('*.*.'*15)
+        test_build_parsing_table()
 
     except AssertionError as e:
         print("Test case failed:\n", str(e))
