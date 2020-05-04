@@ -211,7 +211,7 @@ def parse_production(production_list):
     return new_production_list
 
 
-def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal_list):
+def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal_list, epsilon=0):
     #non terminal production for one non-terminal
     first = set()
     follow_of_follow = set()
@@ -232,6 +232,13 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
                     first.update(first_part)
                     internal_list.update(first_part)
 
+
+
+                    # this part added for parsing table
+                    if epsilon == 1:
+                        if '𝛆' in first_part:
+                            first.add('𝛆')
+
                     # if a NT has no epsilon then no need to continue
                     if '𝛆' not in first_part:
                         break
@@ -242,29 +249,27 @@ def find_first_sole(grammar, non_terminal, non_terminal_production, non_terminal
                 else:
                     if element == '𝛆':
                         follow_of_follow.add(i)
+                        # this part added for parsing table
+                        if epsilon == 1:
+                                first.add('𝛆')
                     else:
                         first.add(element)
                         internal_list.add(element) 
 
                     break
             external_list.append(internal_list)
-            print(f'internal list: {internal_list}')
+            #print(f'internal list: {internal_list}')
 
         ##print("*.*"*20)
     if '𝛆' in first:
-        first.remove('𝛆')
+        if not epsilon:
+            first.remove('𝛆')
     if '𝛆'in follow_of_follow:
         follow_of_follow.remove('𝛆')
     if non_terminal in follow_of_follow:
         # ignore it (avoid recursion)
         follow_of_follow.remove(non_terminal)
 
-
-    ##print("first is ")
-    ##print(first)
-    ##print("follow of follow")
-    ##print(follow_of_follow)
-    print(f"external list is: {external_list}")
     return first, follow_of_follow
     
 
@@ -467,7 +472,7 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
         # get_dict_items()
         for p in productions_list:
             print(f'i in production  n → 𝞪 : {p}')
-            x,_ = find_first_sole(grammar, 'z',p,non_terminal_list)
+            x,_ = find_first_sole(grammar, 'z',p,non_terminal_list,1)
             key,val =  get_dict_items(p)
             for i in x:
                 if i != '𝜺':
@@ -475,6 +480,7 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
                     temp_dict = {i:p}
                     T[key]= temp_dict  
             if has_epsilon(x):
+                print("has 𝜺!")
                 y = get_follow(grammar,key, first_set, start_symbol,non_terminal_list)
                 for j in y:
                     temp_dict = {j:p}
