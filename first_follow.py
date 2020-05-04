@@ -1,6 +1,37 @@
 import itertools
 # test cases
 # https://www.gatevidyalay.com/first-and-follow-compiler-design/
+ANSI_RESET = "\u001B[0m"
+ANSI_RED = "\u001B[31m"
+ANSI_GREEN = "\u001B[32m"
+ANSI_YELLOW = "\u001B[33m"
+ANSI_BLUE = "\u001B[34m"
+ANSI_PURPLE = "\u001B[35m"
+ANSI_ORANGE_BG = "\033[48;2;255;165;0m"
+ANSI_DARK_CYAN = "\033[96m"
+
+
+
+def print_dark_cyan(msg):
+    print(f"{ANSI_DARK_CYAN}{msg}{ANSI_RESET}")
+
+def print_yellow(msg):
+    print(f"{ANSI_YELLOW}{msg}{ANSI_RESET}")
+
+def print_purple(msg):
+    print(f"{ANSI_PURPLE}{msg}{ANSI_RESET}")
+
+def print_blue(msg):
+    print(f"{ANSI_BLUE}{msg}{ANSI_RESET}")
+
+
+def print_red(msg):
+    print(f"{ANSI_RED}{msg}{ANSI_RESET}")
+
+
+def print_green(msg):
+    print(f"{ANSI_GREEN}{msg}{ANSI_RESET}")
+
 
 gram = {
 
@@ -436,8 +467,8 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
     for each production n → 𝞪
         for each a ∈ first(𝞪)
             add n → 𝞪 to T[n,a]
-        if 𝜺 ∈ first(𝞪) then
-            for each b ∈ follow(n)
+        if 𝛆 ∈ first(𝞪) then
+            for eac`h b ∈ follow(n)
                 add n → 𝞪 to T[n,a]
 
     let P be the list of grammar {n → 𝞪} , T the parsing table:
@@ -446,7 +477,7 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
         for P in grammar:
             x = first(P.𝞪)
             for i in x:
-                if i != 𝜺:
+                if i != 𝛆:
                     T[n,i] = P
             if has_espilon(x):
                 y = follow(P.n)
@@ -464,75 +495,50 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
     for g in grammar:
 
         ## returns modified production list dict()
-        # alpha shall be a list of production list
-        print("*"*15)
-        print('[start] separate grammar production')
+        ## alpha shall be a list of production list
+        # print("*"*15)
+        # print('[start] separate grammar production')
         productions_list = separate_grammar_production(g, grammar[g])
         # need n--> NT ,
         # get_dict_items()
+        col_dict = {}
+        temp_dict = {}
+        temp_dict2 = {}
+
         for p in productions_list:
             print(f'i in production  n → 𝞪 : {p}')
             x,_ = find_first_sole(grammar, 'z',p,non_terminal_list,1)
             key,val =  get_dict_items(p)
+            
+
+            # print_yellow(f'firsts : {x}')
+
             for i in x:
-                if i != '𝜺':
-                    print(f'[n,i] → P, [{key},{i}]  → {p}')
-                    temp_dict = {i:p}
-                    T[key]= temp_dict  
+                if i != '𝛆':
+                    # print(f'[n,i] → P, [{key},{i}]  → {p}')
+                    # print(f"add {i}")
+                    temp_dict[i] = p
+                    
+                #T[key]= temp_dict  
+
+            
             if has_epsilon(x):
-                print("has 𝜺!")
+                # print("has 𝛆!")
                 y = get_follow(grammar,key, first_set, start_symbol,non_terminal_list)
+                # print_green(f"follow: {y}")
                 for j in y:
-                    temp_dict = {j:p}
-                    T[key]= temp_dict
+                    temp_dict[j] = p
+                # print(f'temp_dict: {temp_dict}')
 
-            #print(f"x is {x}***")
-            if not x:
-                print("empty")
-            print('[end] separate grammar production')
-            print("*"*15)
+            T[key]= temp_dict
+            # print_red(f'temp_dict: {temp_dict}')
+            # print(f"x is {x}***")
+            #print('[end] separate grammar production')
+            #print("*"*15)
 
-    print(T)
-    print(T['S']['a'])
-
-        
-        # x = find_first_sole(grammar, 'z',alpha[0],non_terminal_list)
-        ## p --> terminal , gramamr[p] --> list of lists
-        #print(f'{p}: {grammar[p]}')
-        
-
+    #print(T)
+    return T
     
-    """ 
-    for g in grammar:
-        print({g: grammar[g]})
-        temp_production = {g: grammar[g]}
-        list_sep = separate_production(temp_production)
-        for i in list_sep:
-            sep_production.append(i)
-
-    for g in sep_production:
-        # [{'C': [['b', 'C']]}, {'C': [['𝛆']]}]
-        print('--.--.--')
-        # production list
-        print(g)
-    """
-    
-    """  
-    # for each production n → 𝞪
-    for n in sep_production:
-        # for each a ∈ first(𝞪)
-        # add n → 𝞪 to T[n,a]
-        #find_first_sole(grammar, )
-        #print(n)
-        #print(f'---> {n[0]}')
-        
-        # one iteration loop
-        for i in n:
-            print(f'*.*.*{n[i]} , {i}*.*.*')
-            firsts, follows = find_first_sole(grammar, i, n, non_terminal_list)
-            print(firsts)
-    """
-
 
 def separate_grammar_production(key, value):
     '''
