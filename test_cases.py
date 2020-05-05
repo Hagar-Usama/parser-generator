@@ -457,6 +457,22 @@ def test_build_parsing_table():
 
     assert_it(correct_value, actual_value, case)
 
+    case = f"{ANSI_YELLOW}Build Parsing Table case 3{ANSI_RESET}"
+    grammar = {
+    'S' : [['a','B','a']],
+    'B' : [['b', 'B'],['𝛆']]
+    }
+
+
+    non_terminal_list = {'S','B'}
+    actual_value = build_parsing_table(grammar, non_terminal_list, 'S')
+    correct_value = {
+            'S': {'a': {'S': [['a','B','a']]}},
+            'B': {'a': {'B': [['𝛆']]}, 'b': {'B': [['b','B']]} }
+            }
+    assert_it(correct_value, actual_value, case)
+
+
 
 def test_lookup_table():
     parsing_table = {
@@ -495,6 +511,24 @@ def test_parse_input():
     actual_value = parse_input(parsing_table,input_list,'E',non_terminal_list,terminal_list)
     correct_value = True
     assert_it(correct_value, actual_value, case)
+
+    
+    parsing_table = {
+        'S': {'a': {'S': [['a','B','a']]}},
+        'B': {'a': {'B': [['𝛆']]}, 'b': {'B': [['b','B']]} }
+    }
+
+    non_terminal_list = {"S","B"}
+    terminal_list = {'a','b','$'}
+    input_list = list("abba")
+    case = f"{ANSI_YELLOW}Parse Input case 2{ANSI_RESET}"
+    actual_value = parse_input(parsing_table,input_list,'S',non_terminal_list,terminal_list)
+    correct_value = True
+    assert_it(correct_value, actual_value, case)
+
+
+
+
 
           
 
@@ -540,3 +574,26 @@ def main():
 
 if __name__ == "__main__":
     main()
+""" 
+
+{
+    'METHOD_BODY': [['STATEMENT_LIST']],
+    'STATEMENT_LIST': [['STATEMENT', ' ', 'STATEMENT_LIST_2']],
+    'STATEMENT_LIST_2': [['STATEMENT', ' ', 'STATEMENT_LIST_2'], ['𝛆']],
+    'STATEMENT': [['DECLARATION'], ['IF'], ['WHILE'], ['ASSIGNMENT']],
+    'DECLARATION': [['PRIMITIVE_TYPE', ' ', "'id'", ' ', "';'"]],
+    'PRIMITIVE_TYPE': [["'int'"], ["'float'"]],
+    'IF': [["'if'", ' ', "'('", ' ', 'EXPRESSION', ' ', "')'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'", ' ', "'else'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'"]],
+    'WHILE': [["'while'", ' ', "'('", ' ', 'EXPRESSION', ' ', "')'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'"]],
+    'ASSIGNMENT': [["'id'", ' ', "'assign'", ' ', 'EXPRESSION', ' ', "';'"]],
+    'EXPRESSION': [['SIMPLE_EXPRESSION', ' ', 'EXPRESSION_2']],
+    'EXPRESSION_2': [["'relop'", ' ', 'SIMPLE_EXPRESSION'], ['𝛆']],
+    'SIMPLE_EXPRESSION': [['TERM', ' ', 'SIMPLE_EXPRESSION_2'], ['SIGN', ' ', 'TERM', ' ', 'SIMPLE_EXPRESSION_2']],
+    'SIMPLE_EXPRESSION_2': [["'addop'", ' ', 'TERM', ' ', 'SIMPLE_EXPRESSION_2'], ['𝛆']],
+    'TERM': [['FACTOR', ' ', 'TERM_2']],
+    'TERM_2': [["'mulop'", ' ', 'FACTOR', ' ', 'TERM_2'], ['𝛆']],
+    'FACTOR': [["'id'"], ["'num'"], ["'('", ' ', 'EXPRESSION', ' ', "')'"]],
+    'SIGN': [["'addop'"]]
+    
+}
+ """

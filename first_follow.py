@@ -631,6 +631,8 @@ def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, term
     print_blue(f"new_input: {input_list}")
     t= input_list.pop(0)
 
+    terminal_list.add('$')
+
     print_yellow(f"current token: {t}")
     todo = ['$',start_symbol]
 
@@ -638,8 +640,8 @@ def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, term
         time.sleep(0.25)
         if todo[-1] in non_terminal_list:
             print_yellow(f'todo.tos : {todo[-1]}, terminal : {t}')
-            xx = lookup_table(parsing_table, todo[-1], t)
-            x = xx.copy()
+            x = lookup_table(parsing_table, todo[-1], t)
+        
             tos = todo[-1]
 
            
@@ -658,6 +660,8 @@ def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, term
                 #print_yellow(f"Display todo: {todo}")
             else:
                 print_red("Not found in table")
+                #panic
+                todo.pop(-1)
 
         elif todo[-1] in terminal_list:
             # if equal remove it in both sides
@@ -671,7 +675,14 @@ def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, term
                 todo.pop(-1)
             else:
                 print_yellow("Sytanx Error")
+                todo.pop(-1)
+                if input_list:
+                    #  panic mode
+                    #t = input_list.pop(0)
+                    pass
+
         print_dark_cyan(f"Display todo: {todo}")
+        print_green(f"Current_input: {t}")
     
     if not input_list:
         print_green("Success!")
@@ -707,7 +718,7 @@ def lookup_table(parsing_table, non_terminal, terminal):
         if terminal in x:
             #print_green(parsing_table[non_terminal][terminal])
             _,value = get_dict_items(parsing_table[non_terminal][terminal])
-            return value
+            return value.copy()
     
     return False
 
@@ -731,24 +742,9 @@ def get_firsts(grammar , non_terminal_list):
 
 
 def main():
-   #print("ho ho ho")
    
-
-   #he_dict = {'S': [['A','a','A','b'],['B','b', 'B', 'a']]}
-   #separate_production(the_dict)
-   #the_list = ['g','A','f','A']
-   #delim = 'A'
-   #slices = [list(y) for x, y in itertools.groupby(the_list, lambda z: z == delim) if not x]
-   #print(slices)
-
    
-
-   #index = get_index('A', ['A','B','A','h'])
-
-   #x = slice_list(index, ['a','B','D','h'] )
-   #print(f'len of x = {len(x)}')
-
-   grammar = {
+    grammar = {
     
     'S' : [['a','B','D','h']],
     'B' : [['c', 'C']],
@@ -759,16 +755,101 @@ def main():
 
    }
 
-   print("Hey hey!")
-   non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
-   build_parsing_table(grammar, non_terminal_list_22, 'S')
-   get_non_terminal_list(grammar)
-   t = get_terminal_list(grammar)
- 
+   #print("Hey hey!")
+   #non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
+   #build_parsing_table(grammar, non_terminal_list_22, 'S')
+   #get_non_terminal_list(grammar)
+   #t = get_terminal_list(grammar)
 
+    """ 
+    grammar = {
+
+    'METHOD_BODY': [['STATEMENT_LIST']],
+    'STATEMENT_LIST': [['STATEMENT', ' ', 'STATEMENT_LIST_2']],
+    'STATEMENT_LIST_2': [['STATEMENT', ' ', 'STATEMENT_LIST_2'], ['𝛆']],
+    'STATEMENT': [['DECLARATION'], ['IF'], ['WHILE'], ['ASSIGNMENT']],
+    'DECLARATION': [['PRIMITIVE_TYPE', ' ', "'id'", ' ', "';'"]],
+    'PRIMITIVE_TYPE': [["'int'"], ["'float'"]],
+    'IF': [["'if'", ' ', "'('", ' ', 'EXPRESSION', ' ', "')'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'", ' ', "'else'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'"]],
+    'WHILE': [["'while'", ' ', "'('", ' ', 'EXPRESSION', ' ', "')'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'"]],
+    'ASSIGNMENT': [["'id'", ' ', "'assign'", ' ', 'EXPRESSION', ' ', "';'"]],
+    'EXPRESSION': [['SIMPLE_EXPRESSION', ' ', 'EXPRESSION_2']],
+    'EXPRESSION_2': [["'relop'", ' ', 'SIMPLE_EXPRESSION'], ['𝛆']],
+    'SIMPLE_EXPRESSION': [['TERM', ' ', 'SIMPLE_EXPRESSION_2'], ['SIGN', ' ', 'TERM', ' ', 'SIMPLE_EXPRESSION_2']],
+    'SIMPLE_EXPRESSION_2': [["'addop'", ' ', 'TERM', ' ', 'SIMPLE_EXPRESSION_2'], ['𝛆']],
+    'TERM': [['FACTOR', ' ', 'TERM_2']],
+    'TERM_2': [["'mulop'", ' ', 'FACTOR', ' ', 'TERM_2'], ['𝛆']],
+    'FACTOR': [["'id'"], ["'num'"], ["'('", ' ', 'EXPRESSION', ' ', "')'"]],
+    'SIGN': [["'addop'"]]
+        
+    }
+    """
+
+    grammar = {
+
+    'METHOD_BODY': [['STATEMENT_LIST']],
+    'STATEMENT_LIST': [['STATEMENT', 'STATEMENT_LIST_2']],
+    'STATEMENT_LIST_2': [['STATEMENT', 'STATEMENT_LIST_2'], ['𝛆']],
+    'STATEMENT': [['DECLARATION'], ['IF'], ['WHILE'], ['ASSIGNMENT']],
+    'DECLARATION': [['PRIMITIVE_TYPE', "'id'", "';'"]],
+    'PRIMITIVE_TYPE': [["'int'"], ["'float'"]],
+    'IF': [["'if'", "'('", 'EXPRESSION', "')'", "'{'", 'STATEMENT', "'}'", "'else'", "'{'", 'STATEMENT', "'}'"]],
+    'WHILE': [["'while'", "'('", 'EXPRESSION', "')'", "'{'", 'STATEMENT', "'}'"]],
+    'ASSIGNMENT': [["'id'", "'assign'", 'EXPRESSION', "';'"]],
+    'EXPRESSION': [['SIMPLE_EXPRESSION', 'EXPRESSION_2']],
+    'EXPRESSION_2': [["'relop'", 'SIMPLE_EXPRESSION'], ['𝛆']],
+    'SIMPLE_EXPRESSION': [['TERM', 'SIMPLE_EXPRESSION_2'], ['SIGN', 'TERM', 'SIMPLE_EXPRESSION_2']],
+    'SIMPLE_EXPRESSION_2': [["'addop'", 'TERM', 'SIMPLE_EXPRESSION_2'], ['𝛆']],
+    'TERM': [['FACTOR', 'TERM_2']],
+    'TERM_2': [["'mulop'", 'FACTOR', 'TERM_2'], ['𝛆']],
+    'FACTOR': [["'id'"], ["'num'"], ["'('", 'EXPRESSION', "')'"]],
+    'SIGN': [["'addop'"]]
+    
+    }
+
+
+
+    terminal_list = get_terminal_list(grammar)
+    non_terminal_list = get_non_terminal_list(grammar)
+    start_symbol = 'METHOD_BODY'
+    table = build_parsing_table(grammar, non_terminal_list,start_symbol)
+    """ 
+    input_list = ["'int'", " ", "'id'", " ","';'",
+                  " ","'id'"," ", "'assign'", " ", "'num'", " ", "';'",
+                  " ", "'if'", " ", "'('", " ", "'id'", " ", "'relop'", " ", "'num'", " ", "')'",
+                  " ", "'{'", " ", "'id'", " ", "'assign'", " ", "'num'"," ", "'}'"] 
+    """
+    """
+    input_list = ["'if'", "'('", "'id'", "'relop'", "'num'", "')'",
+                  "'{'", "'id'", "'assign'", "'num'", "'}'"]
+    """
+
+    
+    input_list = ["'int'", "'id'","';'",
+                  "'id'", "'assign'", "'num'", "';'",
+                  "'if'", "'('", "'id'", "'relop'", "'num'", "')'",
+                  "'{'", "'id'", "'assign'", "'num'", "'}'"]
+
+
+            
+
+    #for i in input_list:
+    #    print_purple(i)
+
+    parse_input(table, input_list, start_symbol,non_terminal_list,terminal_list)
+""" 
+    print(terminal_list)
+    for i in terminal_list:
+        print_yellow(i)
+    print_dark_cyan(non_terminal_list)
+    for i in non_terminal_list:
+        print_dark_cyan(i)
+
+ """
 
    
 
 
 if __name__ == '__main__':
     main()
+

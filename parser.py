@@ -17,11 +17,8 @@ ANSI_GREEN = "\u001B[32m"
 ANSI_YELLOW = "\u001B[33m"
 ANSI_BLUE = "\u001B[34m"
 ANSI_PURPLE = "\u001B[35m"
-""" ANSI_Light_Blue       "\e[1;34m"
-ANSI_Light_Green      "\e[1;32m"
-ANSI_Light_Cyan       "\e[1;36m"
-ANSI_Light_Red        "\e[1;31m"
-ANSI_Light_Purple     "\e[1;35m" """
+ANSI_ORANGE_BG = "\033[48;2;255;165;0m"
+ANSI_DARK_CYAN = "\033[96m"
 
 # it shall be 65 
 unique_id = 129300
@@ -29,6 +26,9 @@ G_identifiers = {}
 grammar_dict = {}
 grammar_dict_sym = {}
 
+
+def print_dark_cyan(msg):
+    print(f"{ANSI_DARK_CYAN}{msg}{ANSI_RESET}")
 
 
 def print_yellow(msg):
@@ -64,6 +64,8 @@ def read_file(filepath):
  
     # close the file
     file.close()
+
+    #all_of_it.replace("\\L",'𝛆')
 
     return all_of_it
 
@@ -109,7 +111,9 @@ def map_rule(rule_statment):
     rule_dict = {}
     part1 = partition_rule(rule_statment)
     part2 = divide_RHS(part1[1])
-    rule_dict[part1[0]] = part2
+    print_green(f'part2: {part2}')
+    g = separate_by_delim(part2)
+    rule_dict[part1[0]] = g
 
     return rule_dict
 
@@ -258,28 +262,82 @@ def print_g_id():
     
 
 
+# function created after first and follows
+def separate_by_delim(the_list):
+    # for each statement in the list
+    y = []
+    g = []
+    print(f"the list is: {the_list}")
+    for i in the_list:
+            print(f"i in the list {i}")
+            x = i.split(' ')
+            """ 
+            y = []
+            for j in x:
+                y.append(j)
+                y.append(' ')
+            y.pop(-1)
+            """
+            g.append(x)
+            #print(f"splited: {y}")
 
+    return g
+    
 
 def main():
     
     print("Hello from the parser 🤗")
+
+    separate_by_delim(["( expression )", "Exp the last"])
+
+
+
+
     cfg = get_current_directory()
     print_yellow(cfg)
     cfg +=  "/CFG.txt"
     print_blue(cfg)
     file_content = read_file(cfg)
     rules_list = split_rules(file_content)
+
+    
     trim_list = trim_rules(rules_list)
+    #print_blue(f"split_rules: {trim_list}")
+
+    print('**'*20)
 
     for i in trim_list:
-        m = map_rule(i)
+        print_green(i)
+    for i in trim_list:
+        m = map_rule(i)     
+        #print_red(m)
         grammar_dict.update(m)
-        #print_yellow(m)
+        print_yellow(m)
     
+   
+    print_blue(grammar_dict)
+    #print_yellow(f"split_rules: {grammar_dict}")
+    """ 
+    for i in grammar_dict:
+        #grammar_dict[i] = list(grammar_dict[i])
+        for j in grammar_dict[i]:
+            j = list(j)
+            print_purple(j)
+        print_green(i)
+        print(grammar_dict[i])
+
+    print('**'*20)
+    """
+    """ 
     for i in grammar_dict:
         set_s = simplify_rule(i,grammar_dict[i])
-        assign_unique_value(set_s)
+        #assign_unique_value(set_s)
+
+    for j in set_s:
+        print_dark_cyan(j)
     
+     """
+    """ 
     
     print_g_id()
     # get dictionary in symbols (one symbol for each identifier)
@@ -308,22 +366,6 @@ def main():
     
     for i in e_grammar:
         print([''.join(x) for x in e_grammar[i]])
-    
-    """ 
-    i = 129300
-    for j in range(1,70):
-        print(chr(i))
-        i += 1
-
-    print_blue(ord('𝛆'))
-    xx = "ggg"
-    print_purple(ord('🤿'))
-    print_blue(ord('🤻'))
-     """
-    """ for i in range(100,200):
-        xx = xx.replace(xx,chr(i))
-        print_red(xx)🤻🤿
- """
-
+ """   
 if __name__ == '__main__':
     main()
