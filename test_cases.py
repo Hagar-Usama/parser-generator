@@ -1,6 +1,7 @@
 import pytest
 from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
 from first_follow import parse_find_first, separate_production, build_parsing_table
+from first_follow import lookup_table, parse_input
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"
@@ -457,6 +458,45 @@ def test_build_parsing_table():
     assert_it(correct_value, actual_value, case)
 
 
+def test_lookup_table():
+    parsing_table = {
+    'E': {'(': {'E': [['T', "E'"]]}, 'x': {'E': [['T', "E'"]]}, 'y': {'E': [['T', "E'"]]}},
+    "E'": {'+': {"E'": [['+', 'T', "E'"]]}, ')': {"E'": [['𝛆']]}, '$': {"E'": [['𝛆']]}},
+    'T': {'(': {'T': [['F', "T'"]]}, 'x': {'T': [['F', "T'"]]}, 'y': {'T': [['F', "T'"]]}},
+    "T'": {'*': {"T'": [['*', 'F', "T'"]]}, '+': {"T'": [['𝛆']]}, '$': {"T'": [['𝛆']]}, ')': {"T'": [['𝛆']]}},
+    'F': {'(': {'F': [['(', 'E', ')']]}, 'x': {'F': [['x']]}, 'y': {'F': [['y']]}}
+    }
+
+    case = f"{ANSI_YELLOW}Lookup Table case 1{ANSI_RESET}"
+    actual_value = lookup_table(parsing_table, 'E', '(')
+    correct_value = ['T', "E'"]
+    assert_it(correct_value, actual_value, case)
+
+    case = f"{ANSI_YELLOW}Lookup Table case 2{ANSI_RESET}"
+    actual_value = lookup_table(parsing_table, 'F', '*')
+    correct_value = False
+    assert_it(correct_value, actual_value, case)
+
+
+def test_parse_input():
+    parsing_table = {
+            'E': {'n': {'E': [['T', 'R']]}, '(': {'E': [['T', 'R']]} },
+            'R': {'+': {'R': [['+', 'E']]}, '*': {'R': [['𝛆']]}, ')': {'R': [['𝛆']]}, '$': {'R': [['𝛆']]} },
+            'T': {'n': {'T': [['F', 'S']]}, '(': {'T': [['F', 'S']]} },
+            'S': {'+': {'S': [['𝛆']]}, ')': {'S': [['𝛆']]}, '$': {'S': [['𝛆']]}, '*': {'S': [['*','T']]}  },
+            'F': {'n': {'F': [['n']]}, '(': {'F': [['(','E',')']]}},
+            }
+    
+    non_terminal_list = {"E","R","T","S","F"}
+    terminal_list = {'n','+','*','(', ')','$'}
+    input_list = list("n+n*n")
+    #input_list = ['n','+','n','*','n']
+    case = f"{ANSI_YELLOW}Parse Input case 1{ANSI_RESET}"
+    actual_value = parse_input(parsing_table,input_list,'E',non_terminal_list,terminal_list)
+    correct_value = True
+    assert_it(correct_value, actual_value, case)
+
+          
 
 
 def assert_it(correct_value, actual_value, case=""):
@@ -488,6 +528,10 @@ def main():
         test_separate_production()
         print_blue('*.*.'*15)
         test_build_parsing_table()
+        print_blue('*.*.'*15)
+        test_lookup_table()
+        print_blue('*.*.'*15)
+        test_parse_input()
 
     except AssertionError as e:
         print("Test case failed:\n", str(e))

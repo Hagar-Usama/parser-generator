@@ -1,4 +1,5 @@
 import itertools
+import time
 # test cases
 # https://www.gatevidyalay.com/first-and-follow-compiler-design/
 ANSI_RESET = "\u001B[0m"
@@ -624,6 +625,61 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
     #print(T)
     return T
     
+def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, terminal_list):
+    input_list.append('$')
+    terminal_list.add('𝛆')
+    print_blue(f"new_input: {input_list}")
+    t= input_list.pop(0)
+
+    print_yellow(f"current token: {t}")
+    todo = ['$',start_symbol]
+
+    while todo:
+        time.sleep(0.25)
+        if todo[-1] in non_terminal_list:
+            print_yellow(f'todo.tos : {todo[-1]}, terminal : {t}')
+            xx = lookup_table(parsing_table, todo[-1], t)
+            x = xx.copy()
+            tos = todo[-1]
+
+           
+            if x:
+                print_green(f"found in table {x}")
+                # x is a list needs some pops
+                #print_blue(f"x is : {x}")
+                x.reverse()
+                #print_blue(f"x  rev is : {x}")
+                #replace the current terminal with the def
+                todo.pop(-1)
+                while(x):
+                    todo.append(x.pop(0))
+            
+
+                #print_yellow(f"Display todo: {todo}")
+            else:
+                print_red("Not found in table")
+
+        elif todo[-1] in terminal_list:
+            # if equal remove it in both sides
+            if t == todo[-1]:
+                print_dark_cyan(f"Match {t}")
+                if input_list:
+                    t = input_list.pop(0)
+                todo.pop(-1)
+                
+            elif todo[-1] == '𝛆':
+                todo.pop(-1)
+            else:
+                print_yellow("Sytanx Error")
+        print_dark_cyan(f"Display todo: {todo}")
+    
+    if not input_list:
+        print_green("Success!")
+        return True
+    else:
+        print_purple("Sytanx Error")
+        return False
+
 
 def separate_grammar_production(key, value):
     '''
@@ -643,6 +699,25 @@ def get_dict_items(the_dict):
     for i in the_dict:
         return i, the_dict[i][0]
 
+def lookup_table(parsing_table, non_terminal, terminal):
+
+    
+    if non_terminal in parsing_table:
+        x = parsing_table[non_terminal]
+        if terminal in x:
+            #print_green(parsing_table[non_terminal][terminal])
+            _,value = get_dict_items(parsing_table[non_terminal][terminal])
+            return value
+    
+    return False
+
+def get_next_input(input_list):
+    if input_list:
+        return input_list.pop(0)
+    else:
+        return False
+
+        
 def get_firsts(grammar , non_terminal_list):
     '''
      collects each firsts in a BIG dictionary   
