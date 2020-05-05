@@ -1,0 +1,19 @@
+g_lr = {
+    'METHOD_BODY': [['STATEMENT_LIST']],
+    'STATEMENT_LIST': [['STATEMENT', "STATEMENT_LIST'"]],
+    'STATEMENT': [['DECLARATION'], ['IF'], ['WHILE'], ['ASSIGNMENT']],
+    'DECLARATION': [['PRIMITIVE_TYPE',  "'id'",  "';'"]],
+    'PRIMITIVE_TYPE': [["'int'"], ["'float'"]],
+    'IF': [["'if'",  "'('",  'EXPRESSION',  "')'",  "'{'",  'STATEMENT',  "'}'",  "'else'",  "'{'",  'STATEMENT',  "'}'"]],
+    'WHILE': [["'while'",  "'('",  'EXPRESSION',  "')'",  "'{'",  'STATEMENT',  "'}'"]],
+    'ASSIGNMENT': [["'id'",  "'assign'",  'EXPRESSION',  "';'"]],
+    'EXPRESSION': [['METHOD_BODY0'], ['METHOD_BODY0',  "'relop'",  'METHOD_BODY0']],
+    'METHOD_BODY0': [['METHOD_BODY1', "METHOD_BODY0'"], ['METHOD_BODY3',  'METHOD_BODY1', "METHOD_BODY0'"]],
+    'METHOD_BODY1': [['METHOD_BODY2', "METHOD_BODY1'"]],
+    'METHOD_BODY2': [["'id'"], ["'num'"], ["'('",  'EXPRESSION',  "')'"]],
+    'METHOD_BODY3': [["'addop'"]],
+    "STATEMENT_LIST'": [[ 'STATEMENT', "STATEMENT_LIST'"], ['𝛆']],
+    "METHOD_BODY0'": [[ "'addop'",  'METHOD_BODY1', "METHOD_BODY0'"], ['𝛆']],
+    "METHOD_BODY1'": [[ "'mulop'",  'METHOD_BODY2', "METHOD_BODY1'"], ['𝛆']]
+    }
+

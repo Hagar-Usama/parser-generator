@@ -625,72 +625,148 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
     #print(T)
     return T
     
-def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, terminal_list):
+def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, terminal_list, delay=0):
+    '''
+    http://www.cs.ecu.edu/karl/5220/spr16/Notes/Top-down/LL1.html
+
+    stack todo = [$]
+    stack matched = []
+    t = get_next_input()
+
+    while todo is not empty:
+        if TOS(todo) is non terminal:
+            x = lookup_table(TOS(todo), t)
+            if x:
+                todo.push(x)
+            else:
+                raise_error(panic)
+        else if TOS(todo) is terminal:
+            if t == TOS(todo):
+                t= get_next_input()
+            else:
+                raise_error(panic)
+    
+    '''
     input_list.append('$')
     terminal_list.add('𝛆')
-    print_blue(f"new_input: {input_list}")
-    t= input_list.pop(0)
-
     terminal_list.add('$')
 
+    print_blue(f"the input: {input_list}")
+    t= input_list.pop(0)
     print_yellow(f"current token: {t}")
     todo = ['$',start_symbol]
+    match = []
+    action = []
+    s = []
+    todos = [todo.copy()]
+    count = 0
 
+    #temp state
+    first_state = ['$',start_symbol]
+
+    # todos
+    A = []
+    #inputs
+    B = []
+    #actions
+    C = []
+
+    # returns todos , actions, inputs
+    inputs = [t]
+    if count == 0:
+        todos.append(todo.copy())
     while todo:
-        time.sleep(0.25)
+        c = "Consume 𝛆"
+
+        time.sleep(delay)
+        # todos
+        todos.append(todo[-1])
+
         if todo[-1] in non_terminal_list:
-            print_yellow(f'todo.tos : {todo[-1]}, terminal : {t}')
+            print_yellow(f'todo.TOS : {todo[-1]}, terminal : {t}')
             x = lookup_table(parsing_table, todo[-1], t)
+
         
-            tos = todo[-1]
+            #tos = todo[-1]
+
+            tos =todo.pop(-1)
+            #todos.append(tos.copy())
+
+            s.append(tos)
 
            
             if x:
+                action.append({tos:x.copy()})
+                c = {tos:x.copy()}
+
                 print_green(f"found in table {x}")
                 # x is a list needs some pops
-                #print_blue(f"x is : {x}")
                 x.reverse()
-                #print_blue(f"x  rev is : {x}")
                 #replace the current terminal with the def
-                todo.pop(-1)
+                #todo.pop(-1)
                 while(x):
                     todo.append(x.pop(0))
             
-
-                #print_yellow(f"Display todo: {todo}")
             else:
-                print_red("Not found in table")
-                #panic
-                todo.pop(-1)
+                #print_red("Not found in table")
+                action.append({tos:"not found"})
+
+                c = {tos:"not found"}
+
+                pass
 
         elif todo[-1] in terminal_list:
             # if equal remove it in both sides
             if t == todo[-1]:
-                print_dark_cyan(f"Match {t}")
+                print_green(f"*.*.* Match : {t} *.*.*")
+                action.append(f"Match : {t}")
+
+                match.append(t)
+                c = f"Match : {t}"
+
                 if input_list:
                     t = input_list.pop(0)
-                todo.pop(-1)
+                    inputs.append(t)
+
+                tos = todo.pop(-1)
+                s.append(tos)
                 
             elif todo[-1] == '𝛆':
-                todo.pop(-1)
+                tos = todo.pop(-1)
+                s.append(tos)
+                action.append({tos:"epsi"})
+                
             else:
                 print_yellow("Sytanx Error")
                 todo.pop(-1)
-                if input_list:
-                    #  panic mode
-                    #t = input_list.pop(0)
-                    pass
+                
 
-        print_dark_cyan(f"Display todo: {todo}")
-        print_green(f"Current_input: {t}")
+        print_dark_cyan(f"Todo Stack: {todo}")
+        print_blue(f"Current Token: {t}")
+        print_yellow(f"Matches Stack: {match}")
+        A.append(todo.copy())
+        B.append(t)
+        C.append(pretty_rule(c))
+        count +=1
+
     
+    A.insert(0,first_state)
+
     if not input_list:
-        print_green("Success!")
+        print_green("*.*.* Success! *.*.*")
+        B.append(" ")
+        C.append("Success")
+        return A,B,C
         return True
     else:
         print_purple("Sytanx Error")
         return False
 
+def pretty_rule(rule):
+    if isinstance(rule, dict):
+        key, val = get_dict_items(rule)
+        return str(key+ " ⟶ " + val)
+    return rule
 
 def separate_grammar_production(key, value):
     '''
@@ -740,116 +816,4 @@ def get_firsts(grammar , non_terminal_list):
         firsts[i] = first_i
     return firsts
 
-
-def main():
-   
-   
-    grammar = {
-    
-    'S' : [['a','B','D','h']],
-    'B' : [['c', 'C']],
-    'C' : [['b','C'],['𝛆']],
-    'D' : [['E','F']],
-    'E' : [['g'],['𝛆']],
-    'F' : [['f'],['𝛆']]
-
-   }
-
-   #print("Hey hey!")
-   #non_terminal_list_22 = {'S','A', 'B','C','D', 'E', 'F'}
-   #build_parsing_table(grammar, non_terminal_list_22, 'S')
-   #get_non_terminal_list(grammar)
-   #t = get_terminal_list(grammar)
-
-    """ 
-    grammar = {
-
-    'METHOD_BODY': [['STATEMENT_LIST']],
-    'STATEMENT_LIST': [['STATEMENT', ' ', 'STATEMENT_LIST_2']],
-    'STATEMENT_LIST_2': [['STATEMENT', ' ', 'STATEMENT_LIST_2'], ['𝛆']],
-    'STATEMENT': [['DECLARATION'], ['IF'], ['WHILE'], ['ASSIGNMENT']],
-    'DECLARATION': [['PRIMITIVE_TYPE', ' ', "'id'", ' ', "';'"]],
-    'PRIMITIVE_TYPE': [["'int'"], ["'float'"]],
-    'IF': [["'if'", ' ', "'('", ' ', 'EXPRESSION', ' ', "')'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'", ' ', "'else'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'"]],
-    'WHILE': [["'while'", ' ', "'('", ' ', 'EXPRESSION', ' ', "')'", ' ', "'{'", ' ', 'STATEMENT', ' ', "'}'"]],
-    'ASSIGNMENT': [["'id'", ' ', "'assign'", ' ', 'EXPRESSION', ' ', "';'"]],
-    'EXPRESSION': [['SIMPLE_EXPRESSION', ' ', 'EXPRESSION_2']],
-    'EXPRESSION_2': [["'relop'", ' ', 'SIMPLE_EXPRESSION'], ['𝛆']],
-    'SIMPLE_EXPRESSION': [['TERM', ' ', 'SIMPLE_EXPRESSION_2'], ['SIGN', ' ', 'TERM', ' ', 'SIMPLE_EXPRESSION_2']],
-    'SIMPLE_EXPRESSION_2': [["'addop'", ' ', 'TERM', ' ', 'SIMPLE_EXPRESSION_2'], ['𝛆']],
-    'TERM': [['FACTOR', ' ', 'TERM_2']],
-    'TERM_2': [["'mulop'", ' ', 'FACTOR', ' ', 'TERM_2'], ['𝛆']],
-    'FACTOR': [["'id'"], ["'num'"], ["'('", ' ', 'EXPRESSION', ' ', "')'"]],
-    'SIGN': [["'addop'"]]
-        
-    }
-    """
-
-    grammar = {
-
-    'METHOD_BODY': [['STATEMENT_LIST']],
-    'STATEMENT_LIST': [['STATEMENT', 'STATEMENT_LIST_2']],
-    'STATEMENT_LIST_2': [['STATEMENT', 'STATEMENT_LIST_2'], ['𝛆']],
-    'STATEMENT': [['DECLARATION'], ['IF'], ['WHILE'], ['ASSIGNMENT']],
-    'DECLARATION': [['PRIMITIVE_TYPE', "'id'", "';'"]],
-    'PRIMITIVE_TYPE': [["'int'"], ["'float'"]],
-    'IF': [["'if'", "'('", 'EXPRESSION', "')'", "'{'", 'STATEMENT', "'}'", "'else'", "'{'", 'STATEMENT', "'}'"]],
-    'WHILE': [["'while'", "'('", 'EXPRESSION', "')'", "'{'", 'STATEMENT', "'}'"]],
-    'ASSIGNMENT': [["'id'", "'assign'", 'EXPRESSION', "';'"]],
-    'EXPRESSION': [['SIMPLE_EXPRESSION', 'EXPRESSION_2']],
-    'EXPRESSION_2': [["'relop'", 'SIMPLE_EXPRESSION'], ['𝛆']],
-    'SIMPLE_EXPRESSION': [['TERM', 'SIMPLE_EXPRESSION_2'], ['SIGN', 'TERM', 'SIMPLE_EXPRESSION_2']],
-    'SIMPLE_EXPRESSION_2': [["'addop'", 'TERM', 'SIMPLE_EXPRESSION_2'], ['𝛆']],
-    'TERM': [['FACTOR', 'TERM_2']],
-    'TERM_2': [["'mulop'", 'FACTOR', 'TERM_2'], ['𝛆']],
-    'FACTOR': [["'id'"], ["'num'"], ["'('", 'EXPRESSION', "')'"]],
-    'SIGN': [["'addop'"]]
-    
-    }
-
-
-
-    terminal_list = get_terminal_list(grammar)
-    non_terminal_list = get_non_terminal_list(grammar)
-    start_symbol = 'METHOD_BODY'
-    table = build_parsing_table(grammar, non_terminal_list,start_symbol)
-    """ 
-    input_list = ["'int'", " ", "'id'", " ","';'",
-                  " ","'id'"," ", "'assign'", " ", "'num'", " ", "';'",
-                  " ", "'if'", " ", "'('", " ", "'id'", " ", "'relop'", " ", "'num'", " ", "')'",
-                  " ", "'{'", " ", "'id'", " ", "'assign'", " ", "'num'"," ", "'}'"] 
-    """
-    """
-    input_list = ["'if'", "'('", "'id'", "'relop'", "'num'", "')'",
-                  "'{'", "'id'", "'assign'", "'num'", "'}'"]
-    """
-
-    
-    input_list = ["'int'", "'id'","';'",
-                  "'id'", "'assign'", "'num'", "';'",
-                  "'if'", "'('", "'id'", "'relop'", "'num'", "')'",
-                  "'{'", "'id'", "'assign'", "'num'", "'}'"]
-
-
-            
-
-    #for i in input_list:
-    #    print_purple(i)
-
-    parse_input(table, input_list, start_symbol,non_terminal_list,terminal_list)
-""" 
-    print(terminal_list)
-    for i in terminal_list:
-        print_yellow(i)
-    print_dark_cyan(non_terminal_list)
-    for i in non_terminal_list:
-        print_dark_cyan(i)
-
- """
-
-   
-
-
-if __name__ == '__main__':
-    main()
 

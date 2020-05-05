@@ -1,12 +1,7 @@
 import os
 import sys
-
-
-my_path = current_path = os.path.dirname(os.path.abspath(__file__))
-my_path = my_path[:-16]
-sys.path.insert(1, my_path)
-import left_recursion
-import left_factoring
+from tabulate import tabulate
+from first_follow import get_non_terminal_list, get_terminal_list, build_parsing_table, parse_input, get_dict_items
 
 # accent characters is special case, DO NOT use them
 
@@ -291,97 +286,101 @@ def get_start_symbol(rule):
     symbol = symbol.strip()
     return symbol
 
+def read_input_list(file_path):
+    with open(file_path) as f:
+        lines = [line.rstrip() for line in f]
+    return lines
+
+def show_parser_table(input_list, todos, inputs, action):
+
+    headers = ["Todo", "Input", "Action"]
+    table = zip(todos,inputs,action)
+    print_blue("*."*20)
+    print_yellow(f"input is : {input_list}")
+    print(tabulate(table, headers=headers))
+
+
+
 def main():
-    
+
+
+    # my welcome
     print("Hello from the parser 🤗")
 
-    separate_by_delim(["( expression )", "Exp the last"])
-
+    # get current directory
     cfg = get_current_directory()
-    print_yellow(cfg)
+
+    input_file = 'input.txt'
+    input_path = cfg + '/' +  input_file
+    input_list = read_input_list(input_path)
+
+    # building path
     cfg +=  "/CFG.txt"
-    print_blue(cfg)
+    #print_blue(cfg)
+    # read grammar input
     file_content = read_file(cfg)
+    
+    # spliting rules
     rules_list = split_rules(file_content)
-    print_green(f"start symbol list : {rules_list[0]}")
+
+    
+    # get start symbol
     start_symbol = get_start_symbol(rules_list[0])
-    print('**'*20)
-    print_red(start_symbol)
 
+    # trim spaces in rule_list
     trim_list = trim_rules(rules_list)
-    #print_blue(f"split_rules: {trim_list}")
-
-    print('**'*20)
-
-    """ 
-    for i in trim_list:
-        print_green(i)
-
-    """
+   
 
     # parsing table LHS ans RHS
     for i in trim_list:
         m = map_rule(i)     
-        #print_red(m)
         grammar_dict.update(m)
-        #print_yellow(m)
     
+    # print our grammar
     print_dictionary(grammar_dict)
-    # print_blue(grammar_dict)
 
-    #print_yellow(f"split_rules: {grammar_dict}")
+    print("*."*20)
+
+    # get terminal list
+    terminal_list = get_terminal_list(grammar_dict)
+    # get non-terminal list
+    non_terminal_list = get_non_terminal_list(grammar_dict)
+    # get input list (read from file)
     """ 
-    for i in grammar_dict:
-        #grammar_dict[i] = list(grammar_dict[i])
-        for j in grammar_dict[i]:
-            j = list(j)
-            print_purple(j)
-        print_green(i)
-        print(grammar_dict[i])
+    input_list = ["'int'", "'id'","';'",
+                  "'id'", "'assign'", "'num'", "';'",
+                  "'if'", "'('", "'id'", "'relop'", "'num'", "')'",
+                  "'{'", "'id'", "'assign'", "'num'", "'}'"]
 
-    print('**'*20)
-    """
+    """  
+    input_list = read_input_list(input_path)
+    # build parsing table
+    parsing_table = build_parsing_table(grammar_dict, non_terminal_list, start_symbol)
+    # parse the input and show steps
+    todos, inputs, action = parse_input(parsing_table,input_list.copy(), start_symbol, non_terminal_list, terminal_list)
     
-    """ 
-    for i in grammar_dict:
-        set_s = simplify_rule(i,grammar_dict[i])
-        assign_unique_value(set_s)
-
-    for j in set_s:
-        print_dark_cyan(j)
+    # tabulate the steps
+    show_parser_table(input_list, todos, inputs, action)
     
+    #########################################################################################################
+    #########################################################################################################
+    # one more example
+    parsing_table = {
+            'E': {'n': {'E': [['T', 'R']]}, '(': {'E': [['T', 'R']]} },
+            'R': {'+': {'R': [['+', 'E']]}, '*': {'R': [['𝛆']]}, ')': {'R': [['𝛆']]}, '$': {'R': [['𝛆']]} },
+            'T': {'n': {'T': [['F', 'S']]}, '(': {'T': [['F', 'S']]} },
+            'S': {'+': {'S': [['𝛆']]}, ')': {'S': [['𝛆']]}, '$': {'S': [['𝛆']]}, '*': {'S': [['*','T']]}  },
+            'F': {'n': {'F': [['n']]}, '(': {'F': [['(','E',')']]}},
+    }
     
-    
-    print_g_id()
-    # get dictionary in symbols (one symbol for each identifier)
-    grammar_dict_sym =  subs_grammar()
-    print("-0-0-"*20)
+    non_terminal_list = {"E","R","T","S","F"}
+    terminal_list = {'n','+','*','(', ')','$'}
+    input_list = list("n+n*n")   
+    headers = ["Todo", "Input", "Action"]
 
-    print(grammar_dict_sym)
+    todos, inputs, action = parse_input(parsing_table,input_list.copy(), 'E', non_terminal_list, terminal_list)
+    show_parser_table(input_list, todos, inputs, action)
 
-    print_dictionary(grammar_dict_sym)
-    
-    """
-    #simplify_rule(m[0], )
-    """
-    print(ord('🤗'))
-    print(chr(129303))
-    print(grammar_dict_sym)
-
-    print("*.*.*"*15)
-    # eliminating left recursion
-    e_grammar = left_recursion.eliminate_lr(grammar_dict_sym)
-    for i in e_grammar:
-        print(f'{i}->{e_grammar[i]}')
-
-    # eliminating left factoring
-    el_grammar = left_factoring.eliminate_lf(e_grammar)
-
-    for i in e_grammar:
-        print_yellow(f'{i}->{el_grammar[i]}')
-    
-    for i in e_grammar:
-        print([''.join(x) for x in e_grammar[i]])
- """   
+  
 if __name__ == '__main__':
     main()
