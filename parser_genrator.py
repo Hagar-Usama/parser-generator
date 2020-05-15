@@ -244,7 +244,7 @@ def subs_loop(statement_list):
 def print_dictionary(dict_map):
     
     for i in dict_map:
-        print_blue(f'{i} ⟶ {dict_map[i]}')
+        print_blue(f'{i}  ⟶  {dict_map[i]}')
         
 
 def print_g_id():

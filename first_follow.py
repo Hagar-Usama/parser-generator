@@ -215,8 +215,8 @@ def get_first_1(grammar, non_terminal, non_terminal_list):
                 If ∈ ∈ First(Y1), then First(X) = { First(Y1) – ∈ } ∪ First(Y2Y3)
             else repeat 3) for Y(n+1)
 
-        assumption for recursion:
-            left recursion is eliminated
+        assumption for recursion and factoring:
+            left recursion and left factoring are eliminated
 
     '''
     first_i = set()
@@ -584,7 +584,7 @@ def build_parsing_table(grammar, non_terminal_list, start_symbol):
 
         for p in productions_list:
             #print(f'i in production  n → 𝞪 : {p}')
-            x,_ = find_first_sole(grammar, 'z',p,non_terminal_list,1)
+            x,_ = find_first_sole(grammar, '𝛄',p,non_terminal_list,1)
             key,val =  get_dict_items(p)
             #index_row = non_terminal_dict[key]
             #print_green(f'{key}, {index_row}')
@@ -764,8 +764,8 @@ def parse_input(parsing_table, input_list, start_symbol, non_terminal_list, term
 
 def pretty_rule(rule):
     if isinstance(rule, dict):
-        key, val = get_dict_items(rule)
-        return str(key+ " ⟶ " + val)
+        key, val = get_dict_items_2 (rule)
+        return str(key+ "   ⟶   " + str(val))
     return rule
 
 def separate_grammar_production(key, value):
@@ -785,6 +785,11 @@ def separate_grammar_production(key, value):
 def get_dict_items(the_dict):
     for i in the_dict:
         return i, the_dict[i][0]
+
+def get_dict_items_2(the_dict):
+    for i in the_dict:
+        return i, the_dict[i]
+
 
 def lookup_table(parsing_table, non_terminal, terminal):
 
