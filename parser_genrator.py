@@ -357,10 +357,14 @@ def main():
     # build parsing table
     parsing_table = build_parsing_table(grammar_dict, non_terminal_list, start_symbol)
     # parse the input and show steps
-    todos, inputs, action = parse_input(parsing_table,input_list.copy(), start_symbol, non_terminal_list, terminal_list)
-    
-    # tabulate the steps
-    show_parser_table(input_list, todos, inputs, action)
+    #todos, inputs, action = parse_input(parsing_table,input_list.copy(), start_symbol, non_terminal_list, terminal_list)
+    package_list = parse_input(parsing_table,input_list.copy(), start_symbol, non_terminal_list, terminal_list)
+    if not isinstance(package_list,bool):
+        # tabulate the steps
+        show_parser_table(input_list, package_list[0], package_list[1], package_list[2])
+        #show_parser_table(input_list, todos, inputs, action)
+    else:
+        print_red("[Visualizing] Syntax Error, cannot tabulate")
     
     #########################################################################################################
     #########################################################################################################
