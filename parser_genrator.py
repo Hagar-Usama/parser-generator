@@ -49,7 +49,15 @@ def print_green(msg):
 def get_current_directory(): 
     current_path = os.path.dirname(os.path.abspath(__file__))
     return current_path
-    print("Script path is : " + scriptpath)
+
+
+def write_file(path_file, output_list):
+
+    with open(path_file, 'w') as filehandle:
+        #filehandle.write(str(output_list))
+        for listitem in output_list:
+           filehandle.write('%s\n' % listitem)
+
 
 def read_file(filepath):
     # Open a file: file
@@ -308,6 +316,7 @@ def main():
     print("Hello from the parser 🤗")
 
     # get current directory
+    cd = get_current_directory()
     cfg = get_current_directory()
 
     input_file = 'input.txt'
@@ -359,13 +368,19 @@ def main():
     # parse the input and show steps
     #todos, inputs, action = parse_input(parsing_table,input_list.copy(), start_symbol, non_terminal_list, terminal_list)
     package_list = parse_input(parsing_table,input_list.copy(), start_symbol, non_terminal_list, terminal_list)
+    
     if not isinstance(package_list,bool):
         # tabulate the steps
         show_parser_table(input_list, package_list[0], package_list[1], package_list[2])
         #show_parser_table(input_list, todos, inputs, action)
+        print(package_list[2])
     else:
         print_red("[Visualizing] Syntax Error, cannot tabulate")
+
     
+    output_path = cd + '/' + 'actions.txt'
+    write_file(output_path, package_list[2]) 
+            
     #########################################################################################################
     #########################################################################################################
     # one more example

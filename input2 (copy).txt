@@ -5,19 +5,8 @@
 'assign'
 'num'
 ';'
-'int'
+'float'
 'id'
-';'
-'id'
-'assign'
-'num'
-';'
-'int'
-'id'
-';'
-'id'
-'assign'
-'num'
 ';'
 'id'
 'assign'
@@ -60,3 +49,6 @@
 'num'
 ';'
 '}'
+
+
+
