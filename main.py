@@ -1,11 +1,16 @@
 from modules.first_follow import get_non_terminal_list, get_terminal_list, build_parsing_table, parse_input, get_dict_items
 from modules.color_print import print_blue, print_green, print_red, print_yellow
-from modules.aux_func import get_current_directory, read_file, write_file, write_in_file
+from modules.aux_func import get_current_directory, read_file, write_file, write_in_file, get_arg
 from modules.parser_genrator import read_input_list, split_rules, get_start_symbol
 from modules.parser_genrator import map_rule, trim_rules, grammar_dict,print_dictionary,show_parser_table
 
 
+
 def main():
+
+    ## set default file for args
+    CFG_file =  get_arg(1, "CFG.txt")
+    tokens_file =  get_arg(2, "tokens.txt")
 
 
     # my welcome
@@ -15,12 +20,12 @@ def main():
     cd = get_current_directory()
     cfg = get_current_directory()
 
-    input_file = 'input.txt'
+    input_file = tokens_file
     input_path = cfg + '/' +  input_file
     input_list = read_input_list(input_path)
 
     # building path
-    cfg +=  "/CFG.txt"
+    cfg +=  "/" + CFG_file
     #print_blue(cfg)
     # read grammar input
     file_content = read_file(cfg)

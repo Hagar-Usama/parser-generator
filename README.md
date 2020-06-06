@@ -23,4 +23,5 @@
 * [x] build a parsing tree (see phase 3)
 * [ ] add arguments (argparse)
 * [x] consider module file to add your modules in
+* [ ] consider add directory for input and directory for output
 * [x] report
