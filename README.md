@@ -20,5 +20,7 @@
 * [X] get follow
 * [x] build parsing table
 * [ ] walk through the parsing table
-* [ ] build a parsing tree
-* [ ] report
+* [x] build a parsing tree (see phase 3)
+* [ ] add arguments (argparse)
+* [x] consider module file to add your modules in
+* [x] report
