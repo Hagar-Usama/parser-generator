@@ -1,7 +1,7 @@
 import pytest
-from first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
-from first_follow import parse_find_first, separate_production, build_parsing_table
-from first_follow import lookup_table, parse_input
+from modules.first_follow import get_first, get_firsts, get_follow, get_rhs, find_first, parse_production, find_first_sole, get_follows
+from modules.first_follow import parse_find_first, separate_production, build_parsing_table
+from modules.first_follow import lookup_table, parse_input
 
 ANSI_RESET = "\u001B[0m"
 ANSI_RED = "\u001B[31m"

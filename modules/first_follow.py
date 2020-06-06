@@ -1,5 +1,6 @@
 import itertools
 import time
+
 # test cases
 # https://www.gatevidyalay.com/first-and-follow-compiler-design/
 ANSI_RESET = "\u001B[0m"
