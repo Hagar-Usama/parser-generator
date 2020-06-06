@@ -20,12 +20,12 @@ def main():
     cd = get_current_directory()
     cfg = get_current_directory()
 
-    input_file = tokens_file
-    input_path = cfg + '/' +  input_file
+    input_path = cfg + '/' + 'inputs' + '/' +  tokens_file
     input_list = read_input_list(input_path)
 
     # building path
-    cfg +=  "/" + CFG_file
+    cfg +=   '/' + 'inputs' + '/'  +  CFG_file
+
     #print_blue(cfg)
     # read grammar input
     file_content = read_file(cfg)
@@ -79,7 +79,7 @@ def main():
         print_red("[Visualizing] Syntax Error, cannot tabulate")
 
     
-    output_path = cd + '/' + 'actions.txt'
+    output_path = cd + '/' + 'outputs' + '/' + 'actions.txt'
     write_file(output_path, package_list[2]) 
             
     ######################

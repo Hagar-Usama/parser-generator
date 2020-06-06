@@ -8,6 +8,7 @@ def get_current_directory():
 
 def write_file(path_file, output_list):
 
+    os.makedirs(os.path.dirname(path_file), exist_ok=True)
     with open(path_file, 'w') as filehandle:
         #filehandle.write(str(output_list))
         for listitem in output_list:
