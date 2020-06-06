@@ -9,8 +9,8 @@ from modules.parser_genrator import map_rule, trim_rules, grammar_dict,print_dic
 def main():
 
     ## set default file for args
-    CFG_file =  get_arg(1, "CFG.txt")
-    tokens_file =  get_arg(2, "tokens.txt")
+    CFG_file =  get_arg(1, "inputs/CFG.txt")
+    tokens_file =  get_arg(2, "inputs/tokens.txt")
 
 
     # my welcome
@@ -20,11 +20,11 @@ def main():
     cd = get_current_directory()
     cfg = get_current_directory()
 
-    input_path = cfg + '/' + 'inputs' + '/' +  tokens_file
+    input_path = cfg + '/' +  tokens_file
     input_list = read_input_list(input_path)
 
     # building path
-    cfg +=   '/' + 'inputs' + '/'  +  CFG_file
+    cfg +=   '/' +  CFG_file
 
     #print_blue(cfg)
     # read grammar input
